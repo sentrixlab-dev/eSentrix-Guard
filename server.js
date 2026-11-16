@@ -12,6 +12,14 @@ const { initDB, get, all, run } = require('./src/db');
 const { checkCustomerFraud, resetDailyQuotaIfNeeded } = require('./src/courierEngine');
 const { initWhatsApp, checkWhatsApp, logoutWhatsApp } = require('./whatsappChecker');
 
+// Process Crash Protection Shields
+process.on('uncaughtException', (err) => {
+    console.error('[CRASH SHIELD] Uncaught Exception:', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('[CRASH SHIELD] Unhandled Rejection:', reason);
+});
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });

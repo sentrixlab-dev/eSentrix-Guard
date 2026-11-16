@@ -1,74 +1,109 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const fs = require('fs');
+const path = require('path');
 
-let client;
+let client = null;
 let isReady = false;
 let currentQr = null;
+let isInitializing = false;
 
 /**
- * Initializes the WhatsApp Web client.
+ * Initializes the WhatsApp Web client safely without crashing the host process.
  * @param {Object} io Socket.io instance to emit events to frontend
  */
 function initWhatsApp(io) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         if (client) {
-            // Already initializing or initialized
             if (isReady) {
-                io.emit('wa_status', { ready: true });
-                resolve();
+                if (io) io.emit('wa_status', { ready: true, message: 'WhatsApp Connected' });
+                return resolve(true);
             } else if (currentQr) {
-                io.emit('qr_code', currentQr);
+                if (io) io.emit('qr_code', currentQr);
+                return resolve(false);
             }
-            return;
         }
 
-        console.log('[WhatsApp] Initializing client...');
-        io.emit('wa_status', { ready: false, message: 'Initializing WhatsApp...' });
+        if (isInitializing) return resolve(false);
+        isInitializing = true;
+
+        console.log('[WhatsApp] Initializing client safely...');
+        if (io) io.emit('wa_status', { ready: false, message: 'Initializing WhatsApp...' });
 
         const isWin = process.platform === 'win32';
         const chromePath = isWin
-            ? require('path').join(__dirname, 'chrome-headless-shell', 'win64-146.0.7680.31', 'chrome-headless-shell-win64', 'chrome-headless-shell.exe')
+            ? path.join(__dirname, 'chrome-headless-shell', 'win64-146.0.7680.31', 'chrome-headless-shell-win64', 'chrome-headless-shell.exe')
             : '/usr/bin/chromium-browser';
 
-        client = new Client({
-            authStrategy: new LocalAuth(),
-            puppeteer: {
-                headless: true,
-                executablePath: chromePath,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
-            }
-        });
+        try {
+            client = new Client({
+                authStrategy: new LocalAuth(),
+                puppeteer: {
+                    headless: true,
+                    executablePath: chromePath,
+                    protocolTimeout: 180000, // 3 minutes timeout to prevent ProtocolError
+                    args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-gpu',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--single-process'
+                    ]
+                }
+            });
 
-        client.on('qr', (qr) => {
-            console.log('[WhatsApp] QR Code received.');
-            currentQr = qr;
-            io.emit('qr_code', qr); // Send raw QR string to frontend (frontend will generate image)
-        });
+            client.on('qr', (qr) => {
+                console.log('[WhatsApp] QR Code received.');
+                currentQr = qr;
+                isInitializing = false;
+                if (io) io.emit('qr_code', qr);
+            });
 
-        client.on('ready', () => {
-            console.log('[WhatsApp] Client is ready!');
-            isReady = true;
-            currentQr = null;
-            io.emit('wa_status', { ready: true, message: 'WhatsApp Connected' });
-            resolve();
-        });
+            client.on('ready', () => {
+                console.log('[WhatsApp] Client is ready!');
+                isReady = true;
+                currentQr = null;
+                isInitializing = false;
+                if (io) io.emit('wa_status', { ready: true, message: 'WhatsApp Connected' });
+                resolve(true);
+            });
 
-        client.on('auth_failure', (msg) => {
-            console.error('[WhatsApp] Authentication failure:', msg);
-            io.emit('wa_status', { ready: false, message: 'Auth Failure' });
-            reject(msg);
-        });
+            client.on('auth_failure', (msg) => {
+                console.error('[WhatsApp] Authentication failure:', msg);
+                isReady = false;
+                isInitializing = false;
+                if (io) io.emit('wa_status', { ready: false, message: 'Authentication Failed' });
+                resolve(false);
+            });
 
-        client.on('disconnected', (reason) => {
-            console.log('[WhatsApp] Disconnected:', reason);
+            client.on('disconnected', (reason) => {
+                console.log('[WhatsApp] Disconnected:', reason);
+                isReady = false;
+                isInitializing = false;
+                currentQr = null;
+                if (io) io.emit('wa_status', { ready: false, message: 'Disconnected' });
+                if (client) {
+                    client.destroy().catch(err => console.error('[WhatsApp] Destroy error:', err.message));
+                    client = null;
+                }
+            });
+
+            client.initialize().catch(err => {
+                console.error('[WhatsApp Init Caught Exception]:', err.message);
+                isReady = false;
+                isInitializing = false;
+                if (io) io.emit('wa_status', { ready: false, message: 'Connection Timeout. Please retry.' });
+                resolve(false);
+            });
+
+        } catch (err) {
+            console.error('[WhatsApp Setup Error]:', err.message);
             isReady = false;
-            io.emit('wa_status', { ready: false, message: 'Disconnected' });
-            if (client) {
-                client.destroy().catch(err => console.error('[WhatsApp] Error during destroy:', err.message));
-                client = null;
-            }
-        });
-
-        client.initialize();
+            isInitializing = false;
+            resolve(false);
+        }
     });
 }
 
@@ -77,13 +112,13 @@ function initWhatsApp(io) {
  * @param {string} phone Number in local format
  */
 async function checkWhatsApp(phone) {
-    if (!isReady) return false;
+    if (!isReady || !client) return false;
 
     try {
         let formattedPhone = phone.startsWith('0') ? '88' + phone : phone;
         const whatsappId = `${formattedPhone}@c.us`;
         const isRegistered = await client.isRegisteredUser(whatsappId);
-        return isRegistered;
+        return !!isRegistered;
     } catch (error) {
         console.error(`[WhatsApp] Error checking ${phone}:`, error.message);
         return false;
@@ -91,37 +126,34 @@ async function checkWhatsApp(phone) {
 }
 
 /**
- * Logs out and destroys the WhatsApp client session.
+ * Logs out and safely cleans the WhatsApp client session.
  * @param {Object} io 
  */
 async function logoutWhatsApp(io) {
     if (client) {
         try {
-            // Attempt to destroy client immediately instead of logging out
             await client.destroy();
         } catch (e) {
-            console.error("Error during destroy:", e);
+            console.error('[WhatsApp Destroy Note]:', e.message);
         }
         client = null;
         isReady = false;
         currentQr = null;
-        
-        // Remove auth folder to force fresh session
-        const fs = require('fs');
-        const path = require('path');
+        isInitializing = false;
+
+        // Grace period for browser process lock release
+        await new Promise(r => setTimeout(r, 1500));
+
         const authPath = path.join(__dirname, '.wwebjs_auth');
         if (fs.existsSync(authPath)) {
             try {
-                fs.rmSync(authPath, { recursive: true, force: true });
-            } catch(e) {
-                console.error("Failed to delete auth folder:", e);
+                fs.rmSync(authPath, { recursive: true, force: true, maxRetries: 3, retryDelay: 500 });
+            } catch (e) {
+                // Ignore lock error, next start will handle it
             }
         }
 
-        io.emit('wa_status', { ready: false, message: 'Disconnected. Refreshing QR...' });
-        
-        // Re-initialize to get new QR
-        initWhatsApp(io).catch(e => console.error(e));
+        if (io) io.emit('wa_status', { ready: false, message: 'Disconnected' });
     }
 }
 
