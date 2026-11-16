@@ -1,864 +1,681 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS Administrator Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-dark: #050508;
-            --bg-app: #08080b;
-            --bg-card: #0d0d13;
-            --border-color: #1b1b24;
-            --text-main: #f8fafc;
-            --text-muted: #64748b;
-            --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.4);
-            --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.4);
-            --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.4);
-            --sidebar-width: 250px;
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-        }
-
-        /* Sidebar Styling */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-card);
-            height: 100vh;
-            padding: 2rem 1.25rem;
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            z-index: 10;
-        }
-
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 2.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary);
-            text-shadow: 0 0 15px var(--primary-glow);
-        }
-
-        .logo i {
-            font-size: 1.5rem;
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            flex: 1;
-        }
-
-        .nav-item {
-            padding: 0.85rem 1rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: var(--transition);
-            text-decoration: none;
-            font-weight: 500;
-            border: 1px solid transparent;
-        }
-
-        .nav-item:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .nav-item.active {
-            background: rgba(59, 130, 246, 0.08);
-            color: var(--primary);
-            border-color: rgba(59, 130, 246, 0.15);
-        }
-
-        .sidebar-footer {
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .logout-btn {
-            color: var(--danger);
-        }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.08);
-            border-color: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
-
-        /* Content Area */
-        .content {
-            flex: 1;
-            padding: 2.25rem 3rem;
-            overflow-y: auto;
-            height: 100vh;
-            background: var(--bg-app);
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-title h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.25rem;
-        }
-
-        .header-title p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Metrics grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .metric-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .metric-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-color);
-        }
-
-        .metric-icon.blue { color: var(--primary); background: rgba(59, 130, 246, 0.05); }
-        .metric-icon.green { color: var(--success); background: rgba(16, 185, 129, 0.05); }
-        .metric-icon.purple { color: #a855f7; background: rgba(168, 85, 247, 0.05); }
-
-        .metric-info h4 {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .metric-info p {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        /* User List Card */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.6rem 1.25rem;
-            background: var(--primary);
-            color: white;
-            border: 1px solid transparent;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px var(--primary-glow);
-        }
-
-        .btn:hover {
-            background: #2563eb;
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.02);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            box-shadow: none;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: none;
-        }
-
-        .action-btn {
-            padding: 0.4rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .action-btn:hover {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: var(--text-muted);
-        }
-
-        .action-btn.deactivate {
-            border-color: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-        }
-
-        .action-btn.deactivate:hover {
-            background: rgba(239, 68, 68, 0.08);
-            border-color: var(--danger);
-        }
-
-        .action-btn.activate {
-            border-color: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-        }
-
-        .action-btn.activate:hover {
-            background: rgba(16, 185, 129, 0.08);
-            border-color: var(--success);
-        }
-
-        .action-btn.delete {
-            border-color: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            padding: 0.4rem;
-        }
-
-        .action-btn.delete:hover {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: white;
-        }
-
-        .action-btn:disabled, .action-btn:disabled:hover {
-            background: transparent !important;
-            border-color: rgba(255,255,255,0.03) !important;
-            color: var(--text-muted) !important;
-            cursor: not-allowed;
-            opacity: 0.4;
-        }
-
-        /* Table Design */
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0.5rem;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        tr:hover td {
-            background: rgba(255,255,255,0.01);
-        }
-
-        /* Badges */
-        .badge {
-            padding: 0.25rem 0.6rem;
-            border-radius: 2rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .badge-active {
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: #34d399;
-        }
-
-        .badge-deactivated {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #f87171;
-        }
-
-        .badge-role-admin {
-            background: rgba(168, 85, 247, 0.08);
-            border: 1px solid rgba(168, 85, 247, 0.25);
-            color: #c084fc;
-        }
-
-        .badge-role-user {
-            background: rgba(59, 130, 246, 0.08);
-            border: 1px solid rgba(59, 130, 246, 0.25);
-            color: #60a5fa;
-        }
-
-        /* LED indicator dot */
-        .led-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-
-        .led-online {
-            background: var(--success);
-            box-shadow: 0 0 8px var(--success);
-        }
-
-        .led-offline {
-            background: var(--text-muted);
-        }
-
-        /* Modal styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            width: 100%;
-            max-width: 480px;
-            padding: 2.25rem;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-            transform: scale(0.95);
-            transition: var(--transition);
-        }
-
-        .modal-overlay.active .modal-box {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.75rem;
-        }
-
-        .modal-header h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            color: var(--text-main);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .form-full {
-            grid-column: span 2;
-        }
-
-        .form-group-modal {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group-modal label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .form-group-modal input, .form-group-modal select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            color: #fff;
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .form-group-modal input:focus, .form-group-modal select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-error {
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-    </style>
+    <title>Store Guard AI - অ্যাডমিন প্যানেল</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-    <div class="sidebar">
-        <div>
-            <div class="logo">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>SaaS Admin</span>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-item active">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Users Control</span>
+<body class="bg-[#f0f4f8] min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Top Admin Navbar -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shadow-sm">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
                 </div>
-                <a href="/" class="nav-item">
-                    <i class="fa-solid fa-square-arrow-up-right"></i>
-                    <span>Launch Customer App</span>
+                <div>
+                    <span class="text-base font-black tracking-wider text-slate-900 font-['Outfit']">STORE GUARD</span>
+                    <span class="text-xs font-bold text-teal-700 ml-1 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">Admin Control</span>
+                </div>
+            </div>
+
+            <!-- Tab Buttons -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                <button onclick="switchTab('history')" id="tab-btn-history" class="px-4 py-2 rounded-lg transition bg-white text-teal-800 shadow-sm">
+                    <i class="fa-solid fa-database mr-1.5"></i> ডাটাবেজ হিস্ট্রি
+                </button>
+                <button onclick="switchTab('keys')" id="tab-btn-keys" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-key mr-1.5"></i> এপিআই কী পুল
+                </button>
+                <button onclick="switchTab('whatsapp')" id="tab-btn-whatsapp" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-brands fa-whatsapp mr-1.5"></i> WhatsApp চেকার
+                </button>
+                <button onclick="switchTab('users')" id="tab-btn-users" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-users mr-1.5"></i> ইউজার কন্ট্রোল
+                </button>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="/" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-teal-700 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                    <i class="fa-solid fa-external-link text-[10px]"></i> পাবলিক চেকার
+                </a>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-teal-800 text-white flex items-center justify-center font-bold text-xs font-['Outfit']">A</span>
+                    <span id="user-display-name" class="text-xs font-bold text-slate-700 hidden sm:inline">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-around text-xs font-bold">
+        <button onclick="switchTab('history')" class="py-1 px-2 text-teal-800">হিস্ট্রি</button>
+        <button onclick="switchTab('keys')" class="py-1 px-2 text-slate-600">এপিআই কী</button>
+        <button onclick="switchTab('whatsapp')" class="py-1 px-2 text-slate-600">WhatsApp</button>
+        <button onclick="switchTab('users')" class="py-1 px-2 text-slate-600">ইউজার</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- ======================================================== -->
+        <!-- TAB 1: Database History & Fraud Log -->
+        <!-- ======================================================== -->
+        <section id="tab-history" class="space-y-6">
+            
+            <!-- Header Card & Filters -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700">
+                        <i class="fa-solid fa-database text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-900 font-['Outfit']">Database History & Fraud Log</h2>
+                        <p class="text-xs text-slate-500">পূর্বে যাচাইকৃত গ্রাহকদের লাইভ ডাটাবেজ রেকর্ড ও রেটিং ইতিহাস</p>
+                    </div>
+                </div>
+
+                <!-- Date Filter Buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-regular fa-calendar mr-1"></i> দিন নির্বাচন:</span>
+                    <button onclick="setDateFilter('today')" id="filter-today" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 text-white transition">Today</button>
+                    <button onclick="setDateFilter('yesterday')" id="filter-yesterday" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Yesterday</button>
+                    <button onclick="setDateFilter('all')" id="filter-all" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">All Days</button>
+                    <input type="date" id="custom-date-picker" onchange="setDateFilter('custom')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-50 border border-slate-200 font-semibold text-slate-700">
+                </div>
+            </div>
+
+            <!-- Search Bar & CSV Export -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="relative w-full sm:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="history-search" placeholder="নম্বর বা Order ID দিয়ে খুঁজুন..." oninput="debounceHistorySearch()"
+                           class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600/30">
+                </div>
+                <a href="/api/verifications/export" download class="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-download text-slate-500"></i> CSV Export
                 </a>
             </div>
-        </div>
-        <div class="sidebar-footer">
-            <a href="/api/logout" class="nav-item logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Administrator Logout</span>
-            </a>
-        </div>
-    </div>
 
-    <div class="content">
-        <div class="header-section">
-            <div class="header-title">
-                <h1>Platform Control Center</h1>
-                <p>Configure subscriptions, register endpoints, and manage customer accounts.</p>
+            <!-- 3 Summary Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Verifications</div>
+                        <div class="text-xs font-semibold text-slate-600">মোট ভেরিফিকেশন</div>
+                    </div>
+                    <div id="stat-total-checks" class="text-3xl font-black text-slate-900 font-['Outfit']">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-bold text-rose-500 uppercase tracking-wider">Auto-Blocked</div>
+                        <div class="text-xs font-semibold text-slate-600">অটো ব্লকড</div>
+                    </div>
+                    <div id="stat-auto-blocked" class="text-3xl font-black text-rose-600 font-['Outfit']">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Manual Checks</div>
+                        <div class="text-xs font-semibold text-slate-600">ম্যানুয়াল চেক</div>
+                    </div>
+                    <div id="stat-manual-checks" class="text-3xl font-black text-emerald-600 font-['Outfit']">0</div>
+                </div>
             </div>
-        </div>
 
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon blue">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <div class="metric-info">
-                    <h4>Total Registered</h4>
-                    <p id="metric-total">0</p>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon green">
-                    <i class="fa-solid fa-wifi"></i>
-                </div>
-                <div class="metric-info">
-                    <h4>Online Sessions</h4>
-                    <p id="metric-online">0</p>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon purple">
-                    <i class="fa-solid fa-layer-group"></i>
-                </div>
-                <div class="metric-info">
-                    <h4>Status Environment</h4>
-                    <p>Production</p>
+            <!-- Historical Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-[11px]">
+                                <th class="py-3.5 px-4">টাইপ / অর্ডার</th>
+                                <th class="py-3.5 px-4">মোবাইল নম্বর</th>
+                                <th class="py-3.5 px-4 text-center">মোট</th>
+                                <th class="py-3.5 px-4 text-center">সফল</th>
+                                <th class="py-3.5 px-4 text-center">বাতিল</th>
+                                <th class="py-3.5 px-4 text-center">রেট</th>
+                                <th class="py-3.5 px-4 text-center">স্ট্যাটাস</th>
+                                <th class="py-3.5 px-4 text-center">WhatsApp</th>
+                                <th class="py-3.5 px-4 text-right">সময়/তারিখ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr>
+                                <td colspan="9" class="py-8 text-center text-slate-400">ডাটা লোড হচ্ছে...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h3>Registered Users & Subscriptions</h3>
-                <button class="btn" onclick="openCreateModal()">
-                    <i class="fa-solid fa-user-plus"></i> Add Account
-                </button>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Status Badge</th>
-                            <th>Session Status</th>
-                            <th style="text-align: right;">Administrative Control</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table">
-                        <tr>
-                            <td colspan="6" style="text-align:center; color: var(--text-muted);">
-                                <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i> Querying database...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Create User Modal Overlay -->
-    <div class="modal-overlay" id="create-modal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Add New Account</h3>
-                <button class="modal-close" onclick="closeCreateModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-error" id="modal-error">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <span id="modal-error-text">Failed to register user.</span>
-            </div>
-            <form id="create-user-form">
-                <div class="form-grid">
-                    <div class="form-group-modal">
-                        <label for="new-username">Username</label>
-                        <input type="text" id="new-username" required placeholder="john_doe">
+        <!-- ======================================================== -->
+        <!-- TAB 2: API Key Rotation Pool -->
+        <!-- ======================================================== -->
+        <section id="tab-keys" class="hidden space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Add New Key Card -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
+                    <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 mb-5">
+                        <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Register API Key</h3>
                     </div>
-                    <div class="form-group-modal">
-                        <label for="new-password">Password</label>
-                        <input type="password" id="new-password" required placeholder="••••••••">
+
+                    <form onsubmit="handleApiKeySubmit(event)" class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">Courier Name</label>
+                            <select id="key-courier" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800">
+                                <option value="BD Courier">BD Courier</option>
+                                <option value="Steadfast">Steadfast</option>
+                                <option value="RedX">RedX</option>
+                                <option value="Pathao">Pathao</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">API Key / Bearer Token</label>
+                            <input type="text" id="key-value" required placeholder="Enter Token or Secret Key..." 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">Daily Limit (Requests / Day)</label>
+                            <input type="number" id="key-limit" value="50" min="1" max="5000" 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800">
+                            <p class="text-[10px] text-slate-400 mt-1">ফ্রি বিডি কুরিয়ার অ্যাকাউন্টের লিমিট ৫০/দিন। ৫০ শেষ হলে কি-টি অটো-পার্কড থাকবে।</p>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl shadow-xs transition">
+                            Add API Key
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Active Keys Pool Table -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-wave-square text-teal-600"></i>
+                            <h3 class="text-sm font-extrabold text-slate-900">Active API Keys Pool</h3>
+                        </div>
+                        <span id="active-keys-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">
+                            0 Keys Active
+                        </span>
                     </div>
-                    <div class="form-group-modal">
-                        <label for="new-role">Account Privilege</label>
-                        <select id="new-role">
-                            <option value="user">User (Standard Customer)</option>
-                            <option value="admin">Administrator</option>
-                        </select>
-                    </div>
-                    <div class="form-group-modal">
-                        <label for="new-plan">Subscription Plan</label>
-                        <select id="new-plan">
-                            <option value="Free Trial">Free Trial</option>
-                            <option value="Pro Monthly">Pro Monthly</option>
-                            <option value="Enterprise">Enterprise</option>
-                        </select>
-                    </div>
-                    <div class="form-group-modal">
-                        <label for="new-email">Email Address</label>
-                        <input type="email" id="new-email" placeholder="john@example.com">
-                    </div>
-                    <div class="form-group-modal">
-                        <label for="new-phone">Phone Number</label>
-                        <input type="text" id="new-phone" placeholder="01712345678">
-                    </div>
-                    <div class="form-group-modal form-full">
-                        <label for="new-expires">Plan Expiration Date</label>
-                        <input type="date" id="new-expires">
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100">
+                                    <th class="pb-3">Courier</th>
+                                    <th class="pb-3">Key Value</th>
+                                    <th class="pb-3 text-center">Daily Usage</th>
+                                    <th class="pb-3 text-center">Status</th>
+                                    <th class="pb-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="api-keys-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr>
+                                    <td colspan="5" class="py-6 text-center text-slate-400">কোনো এপিআই কী যুক্ত করা হয়নি</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-                    <button type="submit" class="btn">Register Profile</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
+            </div>
+
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 3: WhatsApp Checker -->
+        <!-- ======================================================== -->
+        <section id="tab-whatsapp" class="hidden space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-2 text-teal-700">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <h3 class="text-sm font-extrabold text-slate-900">WhatsApp Checker Service</h3>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="wa-toggle" onchange="toggleWhatsAppService()" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-700"></div>
+                        </label>
+                    </div>
+
+                    <p class="text-xs text-slate-500">
+                        সার্ভিস অন করার পর QR কোডটি আপনার মোবাইলের WhatsApp অ্যাপের মাধ্যমে স্ক্যান করে সেশন লিংক করুন। এর ফলে কাস্টমার নম্বর সার্চের সাথে সাথে তার WhatsApp অ্যাকাউন্ট আছে কিনা তা স্বয়ংক্রিয়ভাবে ডিটেক্ট হবে।
+                    </p>
+
+                    <!-- QR Code Display Box -->
+                    <div id="wa-qr-container" class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-2xl min-h-[260px]">
+                        <div id="wa-qr-canvas-wrapper" class="hidden">
+                            <canvas id="wa-qr-canvas" class="border border-slate-300 rounded-xl p-2 bg-white"></canvas>
+                        </div>
+                        <div id="wa-status-text" class="text-center text-xs font-semibold text-slate-500 mt-2">
+                            WhatsApp সার্ভিস বন্ধ রয়েছে। উপরের সুইচ অন করুন।
+                        </div>
+                    </div>
+
+                    <button onclick="disconnectWhatsApp()" class="w-full py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition">
+                        <i class="fa-solid fa-power-off mr-1.5"></i> Disconnect WhatsApp Session
+                    </button>
+                </div>
+
+                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-teal-600"></i> ব্যবহারের নির্দেশিকা
+                    </h3>
+                    <ul class="text-xs text-slate-600 space-y-2.5 list-disc pl-4 leading-relaxed">
+                        <li>WhatsApp সেশন চালু থাকলে প্রতিটি মোবাইল নম্বরের WhatsApp রেজিস্ট্রেশন স্ট্যাটাস স্বয়ংক্রিয়ভাবে চেক হয়ে টেবিলে দেখাবে।</li>
+                        <li>যদি কাস্টমারের WhatsApp একাউন্ট থাকে, টেবিলে সবুজ WhatsApp আইকন আসবে। না থাকলে ক্রস বা অনুপস্থিত দেখাবে।</li>
+                        <li>সেশন সুরক্ষিত রাখতে কখনোই একাধিক ডিভাইসে একই সাথে এই QR শেয়ার করবেন না।</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 4: User Management -->
+        <!-- ======================================================== -->
+        <section id="tab-users" class="hidden space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Add User Form -->
+                <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
+                    <h3 class="text-sm font-extrabold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-teal-700"></i> Add New User
+                    </h3>
+                    <form onsubmit="handleUserSubmit(event)" class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Username</label>
+                            <input type="text" id="new-username" required placeholder="e.g. agent01" 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="new-fullname" placeholder="e.g. Shanto Ahmed" 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Password</label>
+                            <input type="password" id="new-password" required placeholder="••••••••" 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Role</label>
+                            <select id="new-role" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800">
+                                <option value="representative">Representative (Operator)</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl transition">
+                            Create Account
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Users List Table -->
+                <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-extrabold text-slate-900 mb-4 pb-3 border-b border-slate-100">
+                        Registered Users & Control
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100">
+                                    <th class="pb-3">User</th>
+                                    <th class="pb-3">Role</th>
+                                    <th class="pb-3 text-center">Status</th>
+                                    <th class="pb-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr>
+                                    <td colspan="4" class="py-6 text-center text-slate-400">ইউজার তালিকা লোড হচ্ছে...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Admin Client Logic Script -->
     <script>
-        let currentAdmin = null;
+        const socket = io();
+        let currentDateFilter = 'today';
+        let searchDebounceTimeout = null;
 
-        async function fetchAdminProfile() {
-            try {
-                const res = await fetch('/api/profile');
-                const data = await res.json();
-                if (data.success) {
-                    currentAdmin = data.user;
+        // Switch Tabs
+        function switchTab(tab) {
+            ['history', 'keys', 'whatsapp', 'users'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    btn.className = 'px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900';
                 }
-            } catch (err) {
-                console.error("Error fetching admin profile:", err);
+            });
+
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-4 py-2 rounded-lg transition bg-white text-teal-800 shadow-sm';
             }
+
+            if (tab === 'history') loadHistory();
+            if (tab === 'keys') loadApiKeys();
+            if (tab === 'users') loadUsers();
+            if (tab === 'whatsapp') loadWhatsAppStatus();
         }
 
-        async function loadUsers() {
-            try {
-                const res = await fetch('/api/admin/users');
-                const data = await res.json();
-                
-                if (data.success) {
-                    const tbody = document.getElementById('users-table');
-                    tbody.innerHTML = '';
-                    
-                    let onlineCount = 0;
-                    document.getElementById('metric-total').innerText = data.users.length;
-                    
-                    data.users.forEach(u => {
-                        if (u.isLoggedIn) onlineCount++;
-                        
-                        const isSelf = currentAdmin && currentAdmin.id === u.id;
-                        const statusBadge = u.plan_status === 'Active' 
-                            ? `<span class="badge badge-active"><i class="fa-solid fa-circle-check"></i> Active</span>`
-                            : `<span class="badge badge-deactivated"><i class="fa-solid fa-circle-xmark"></i> Deactivated</span>`;
-                        
-                        const roleBadge = u.role === 'admin'
-                            ? `<span class="badge badge-role-admin"><i class="fa-solid fa-user-shield"></i> Admin</span>`
-                            : `<span class="badge badge-role-user"><i class="fa-solid fa-user"></i> User</span>`;
-
-                        const led = u.isLoggedIn
-                            ? `<span class="led-dot led-online"></span><span style="font-size:0.85rem; font-weight:600; color:var(--success);">Online</span>`
-                            : `<span class="led-dot led-offline"></span><span style="font-size:0.85rem; color:var(--text-muted);">Offline</span>`;
-
-                        // If user is active, we offer deactivation. If deactivated, activation.
-                        const toggleButtonText = u.plan_status === 'Active' ? 'Deactivate' : 'Activate';
-                        const toggleButtonClass = u.plan_status === 'Active' ? 'deactivate' : 'activate';
-                        const toggleButtonIcon = u.plan_status === 'Active' 
-                            ? '<i class="fa-solid fa-user-slash"></i>' 
-                            : '<i class="fa-solid fa-user-check"></i>';
-                        
-                        tbody.innerHTML += `
-                            <tr>
-                                <td style="font-weight:600; color:var(--text-muted);">#${u.id}</td>
-                                <td style="font-weight:600;">${u.username} ${isSelf ? '<span style="font-size:0.75rem; color:var(--primary); font-weight:normal;">(you)</span>' : ''}</td>
-                                <td>${roleBadge}</td>
-                                <td>${statusBadge}</td>
-                                <td><div style="display:flex; align-items:center;">${led}</div></td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:8px;">
-                                        <button 
-                                            class="action-btn ${toggleButtonClass}" 
-                                            onclick="toggleUserStatus(${u.id}, '${u.plan_status}')" 
-                                            ${isSelf ? 'disabled' : ''}
-                                            title="${isSelf ? 'Cannot modify your own account status' : toggleButtonText + ' Account'}"
-                                        >
-                                            ${toggleButtonIcon} ${toggleButtonText}
-                                        </button>
-                                        <button 
-                                            class="action-btn delete" 
-                                            onclick="deleteUser(${u.id}, '${u.username}')" 
-                                            ${isSelf ? 'disabled' : ''}
-                                            title="${isSelf ? 'Cannot delete your own account' : 'Delete Account'}"
-                                        >
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    document.getElementById('metric-online').innerText = onlineCount;
-                } else {
-                    window.location.href = '/admin/login';
+        // ==========================================
+        // HISTORY TAB
+        // ==========================================
+        function setDateFilter(filter) {
+            currentDateFilter = filter;
+            ['today', 'yesterday', 'all'].forEach(f => {
+                const el = document.getElementById(`filter-${f}`);
+                if (el) {
+                    el.className = f === filter 
+                        ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 text-white transition'
+                        : 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
                 }
+            });
+            loadHistory();
+        }
+
+        function debounceHistorySearch() {
+            clearTimeout(searchDebounceTimeout);
+            searchDebounceTimeout = setTimeout(loadHistory, 400);
+        }
+
+        async function loadHistory() {
+            const search = document.getElementById('history-search').value.trim();
+            const dateInput = document.getElementById('custom-date-picker').value;
+
+            let url = `/api/verifications?filter=${currentDateFilter}`;
+            if (currentDateFilter === 'custom' && dateInput) {
+                url = `/api/verifications?date=${dateInput}`;
+            }
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+
+            try {
+                const res = await fetch(url).then(r => r.json());
+                if (!res.success) return;
+
+                // Update Header Stats
+                document.getElementById('stat-total-checks').innerText = res.stats.totalChecks;
+                document.getElementById('stat-auto-blocked').innerText = res.stats.autoBlocked;
+                document.getElementById('stat-manual-checks').innerText = res.stats.manualChecks;
+
+                // Render Rows
+                const tbody = document.getElementById('history-rows');
+                if (res.records.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">কোনো রেকর্ড পাওয়া যায়নি</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = res.records.map(r => {
+                    const isBlocked = r.status_badge === 'Auto-Blocked';
+                    const isHighRisk = r.risk_level === 'High Risk';
+                    const badgeClass = isBlocked ? 'bg-rose-50 text-rose-700 border-rose-200' : (isHighRisk ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+
+                    const waIcon = r.has_whatsapp 
+                        ? `<span class="text-emerald-600 font-bold"><i class="fa-brands fa-whatsapp text-base"></i></span>`
+                        : `<span class="text-slate-300"><i class="fa-solid fa-minus"></i></span>`;
+
+                    const dateStr = new Date(r.created_at).toLocaleString('bn-BD', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+
+                    return `
+                        <tr>
+                            <td class="py-3 px-4">
+                                <span class="font-mono text-xs font-bold text-slate-800">${r.order_ref || '#ORD'}</span>
+                                <div class="text-[10px] text-slate-400">${r.check_type}</div>
+                            </td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-900">${r.phone}</td>
+                            <td class="py-3 px-4 text-center font-['Outfit'] font-bold">${r.total_orders}</td>
+                            <td class="py-3 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery}</td>
+                            <td class="py-3 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel}</td>
+                            <td class="py-3 px-4 text-center font-['Outfit'] font-bold text-slate-800">${r.success_rate}%</td>
+                            <td class="py-3 px-4 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
+                                    ${r.status_badge}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-center">${waIcon}</td>
+                            <td class="py-3 px-4 text-right text-[11px] text-slate-500">${dateStr}</td>
+                        </tr>
+                    `;
+                }).join('');
+
             } catch (e) {
                 console.error(e);
-                window.location.href = '/admin/login';
             }
         }
 
-        function openCreateModal() {
-            document.getElementById('create-modal').classList.add('active');
-            document.getElementById('modal-error').style.display = 'none';
-        }
-
-        function closeCreateModal() {
-            document.getElementById('create-modal').classList.remove('active');
-            document.getElementById('create-user-form').reset();
-        }
-
-        document.getElementById('create-user-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('new-username').value;
-            const password = document.getElementById('new-password').value;
-            const role = document.getElementById('new-role').value;
-            const plan_name = document.getElementById('new-plan').value;
-            const email = document.getElementById('new-email').value;
-            const phone = document.getElementById('new-phone').value;
-            const plan_expires = document.getElementById('new-expires').value;
-
-            const errorBox = document.getElementById('modal-error');
-            const errorText = document.getElementById('modal-error-text');
-
-            errorBox.style.display = 'none';
-
+        // ==========================================
+        // API KEYS TAB
+        // ==========================================
+        async function loadApiKeys() {
             try {
-                const res = await fetch('/api/admin/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, role, plan_name, email, phone, plan_expires })
-                });
+                const res = await fetch('/api/admin/api-keys').then(r => r.json());
+                if (!res.success) return;
 
-                const data = await res.json();
-                if (data.success) {
-                    closeCreateModal();
-                    loadUsers();
-                } else {
-                    errorText.innerText = data.error || 'Failed to create user.';
-                    errorBox.style.display = 'inline-flex';
+                const activeCount = res.keys.filter(k => k.status === 'active' && k.usage_count < k.daily_limit).length;
+                document.getElementById('active-keys-badge').innerText = `${activeCount} Keys Active`;
+
+                const tbody = document.getElementById('api-keys-rows');
+                if (res.keys.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">কোনো এপিআই কী যুক্ত করা হয়নি</td></tr>`;
+                    return;
                 }
-            } catch (err) {
-                errorText.innerText = 'Server error creating account.';
-                errorBox.style.display = 'inline-flex';
+
+                tbody.innerHTML = res.keys.map(k => {
+                    const isExhausted = k.usage_count >= k.daily_limit;
+                    const statusBadge = isExhausted
+                        ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Parked</span>`
+                        : (k.status === 'active' 
+                            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>`
+                            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Paused</span>`);
+
+                    const masked = k.key_value.substring(0, 4) + '••••••••' + k.key_value.substring(k.key_value.length - 4);
+
+                    return `
+                        <tr>
+                            <td class="py-3 font-bold text-slate-900">${k.courier_name}</td>
+                            <td class="py-3 font-mono text-[11px] text-slate-600">${masked}</td>
+                            <td class="py-3 text-center">
+                                <div class="font-['Outfit'] font-bold text-xs ${isExhausted ? 'text-amber-600' : 'text-slate-800'}">
+                                    ${k.usage_count} / ${k.daily_limit}
+                                </div>
+                                <div class="w-16 h-1.5 bg-slate-100 rounded-full mx-auto mt-1 overflow-hidden">
+                                    <div class="h-full bg-teal-600" style="width: ${Math.min(100, (k.usage_count / k.daily_limit) * 100)}%"></div>
+                                </div>
+                            </td>
+                            <td class="py-3 text-center">${statusBadge}</td>
+                            <td class="py-3 text-right space-x-1">
+                                <button onclick="resetKey(${k.id})" title="কাউন্টার ০ করুন" class="p-1.5 hover:text-teal-700 text-slate-400 transition"><i class="fa-solid fa-rotate-left"></i></button>
+                                <button onclick="toggleKey(${k.id})" title="পজ/একটিভ" class="p-1.5 hover:text-amber-600 text-slate-400 transition"><i class="fa-solid fa-pause"></i></button>
+                                <button onclick="deleteKey(${k.id})" title="ডিলিট" class="p-1.5 hover:text-rose-600 text-slate-400 transition"><i class="fa-regular fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function handleApiKeySubmit(e) {
+            e.preventDefault();
+            const courierName = document.getElementById('key-courier').value;
+            const keyValue = document.getElementById('key-value').value;
+            const dailyLimit = document.getElementById('key-limit').value;
+
+            await fetch('/api/admin/api-keys', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ courierName, keyValue, dailyLimit })
+            });
+
+            document.getElementById('key-value').value = '';
+            loadApiKeys();
+        }
+
+        async function resetKey(id) {
+            await fetch(`/api/admin/api-keys/${id}/reset`, { method: 'POST' });
+            loadApiKeys();
+        }
+
+        async function toggleKey(id) {
+            await fetch(`/api/admin/api-keys/${id}/toggle`, { method: 'POST' });
+            loadApiKeys();
+        }
+
+        async function deleteKey(id) {
+            if (confirm('এই এপিআই কী মুছে ফেলতে চান?')) {
+                await fetch(`/api/admin/api-keys/${id}`, { method: 'DELETE' });
+                loadApiKeys();
+            }
+        }
+
+        // ==========================================
+        // WHATSAPP TAB
+        // ==========================================
+        async function loadWhatsAppStatus() {
+            try {
+                const res = await fetch('/api/admin/whatsapp/status').then(r => r.json());
+                document.getElementById('wa-toggle').checked = res.enabled;
+                if (!res.enabled) {
+                    document.getElementById('wa-status-text').innerText = 'WhatsApp সার্ভিস বন্ধ রয়েছে।';
+                    document.getElementById('wa-qr-canvas-wrapper').classList.add('hidden');
+                }
+            } catch (e) {}
+        }
+
+        async function toggleWhatsAppService() {
+            const enable = document.getElementById('wa-toggle').checked;
+            document.getElementById('wa-status-text').innerText = enable ? 'WhatsApp ক্লায়েন্ট ইনিশিয়ালাইজ হচ্ছে...' : 'WhatsApp সংযোগ বন্ধ করা হয়েছে।';
+
+            await fetch('/api/admin/whatsapp/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enable })
+            });
+        }
+
+        async function disconnectWhatsApp() {
+            document.getElementById('wa-toggle').checked = false;
+            await toggleWhatsAppService();
+        }
+
+        // Socket listener for WhatsApp QR
+        socket.on('qr_code', (qr) => {
+            const canvas = document.getElementById('wa-qr-canvas');
+            QRCode.toCanvas(canvas, qr, { width: 200 }, (err) => {
+                if (!err) {
+                    document.getElementById('wa-qr-canvas-wrapper').classList.remove('hidden');
+                    document.getElementById('wa-status-text').innerText = 'মোবাইল দিয়ে কিউআর কোড স্ক্যান করুন।';
+                }
+            });
+        });
+
+        socket.on('wa_status', (data) => {
+            if (data.ready) {
+                document.getElementById('wa-qr-canvas-wrapper').classList.add('hidden');
+                document.getElementById('wa-status-text').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> WhatsApp Connected!</span>`;
+            } else {
+                document.getElementById('wa-status-text').innerText = data.message || 'Connecting...';
             }
         });
 
-        async function toggleUserStatus(userId, currentStatus) {
-            const targetStatus = currentStatus === 'Active' ? 'Deactivated' : 'Active';
-            const actionText = currentStatus === 'Active' ? 'deactivate' : 'activate';
-            
-            if (!confirm(`Are you sure you want to ${actionText} this user?`)) return;
-
+        // ==========================================
+        // USERS TAB
+        // ==========================================
+        async function loadUsers() {
             try {
-                const res = await fetch(`/api/admin/users/${userId}/toggle-status`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: targetStatus })
-                });
+                const res = await fetch('/api/admin/users').then(r => r.json());
+                if (!res.success) return;
 
-                const data = await res.json();
-                if (data.success) {
-                    loadUsers();
-                } else {
-                    alert(data.error || 'Failed to change status.');
-                }
-            } catch (err) {
-                alert('Network connection error.');
+                const tbody = document.getElementById('users-rows');
+                tbody.innerHTML = res.users.map(u => {
+                    const isActive = u.status === 'active';
+                    return `
+                        <tr>
+                            <td class="py-3">
+                                <div class="font-bold text-slate-900">${u.full_name || u.username}</div>
+                                <div class="text-[10px] text-slate-400">@${u.username}</div>
+                            </td>
+                            <td class="py-3 font-semibold text-slate-700 capitalize">${u.role}</td>
+                            <td class="py-3 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                                    ${u.status}
+                                </span>
+                            </td>
+                            <td class="py-3 text-right space-x-1">
+                                <button onclick="toggleUser(${u.id})" class="p-1.5 text-slate-400 hover:text-amber-600"><i class="fa-solid fa-power-off"></i></button>
+                                <button onclick="deleteUser(${u.id})" class="p-1.5 text-slate-400 hover:text-rose-600"><i class="fa-regular fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {}
+        }
+
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('new-username').value;
+            const full_name = document.getElementById('new-fullname').value;
+            const password = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+
+            await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, full_name, password, role })
+            });
+
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-fullname').value = '';
+            document.getElementById('new-password').value = '';
+            loadUsers();
+        }
+
+        async function toggleUser(id) {
+            await fetch(`/api/admin/users/${id}/toggle`, { method: 'POST' });
+            loadUsers();
+        }
+
+        async function deleteUser(id) {
+            if (confirm('এই ইউজার একাউন্ট মুছে ফেলতে চান?')) {
+                await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+                loadUsers();
             }
         }
 
-        async function deleteUser(userId, username) {
-            if (!confirm(`WARNING: Are you absolutely sure you want to delete account "${username}"?\nThis action cannot be undone.`)) return;
-
-            try {
-                const res = await fetch(`/api/admin/users/${userId}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    loadUsers();
-                } else {
-                    alert(data.error || 'Failed to delete user.');
-                }
-            } catch (err) {
-                alert('Network connection error.');
-            }
-        }
-
-        // Init load
-        (async () => {
-            await fetchAdminProfile();
-            await loadUsers();
-        })();
+        // Initial Load
+        loadHistory();
     </script>
 </body>
 </html>

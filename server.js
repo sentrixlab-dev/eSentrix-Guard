@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const cors = require('cors');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const { Server } = require('socket.io');
@@ -9,21 +10,22 @@ const compression = require('compression');
 
 const { initDB, get, all, run } = require('./src/db');
 const { checkCustomerFraud, resetDailyQuotaIfNeeded } = require('./src/courierEngine');
-const { startHarvesting, stopHarvesting, getHarvestStatus } = require('./src/harvestEngine');
+const { initWhatsApp, checkWhatsApp, logoutWhatsApp } = require('./whatsappChecker');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
 // Middleware
+app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session
+// Session Store
 const sessionMiddleware = session({
     store: new SQLiteStore({ db: 'database.sqlite', concurrentDb: true }),
-    secret: 'store-guard-ai-secret-key-2026',
+    secret: 'store-guard-ai-secret-2026',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
@@ -32,18 +34,23 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 io.use((socket, next) => sessionMiddleware(socket.request, {}, next));
 
-// Static files
+// Serve Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+// Friendly routes
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public/login.html')));
+
 // Auth Guard Middlewares
 const requireAuth = (req, res, next) => {
-    if (!req.session.user) return res.status(401).json({ error: 'Unauthorized. Please login.' });
+    if (!req.session || !req.session.user) return res.status(401).json({ error: 'Unauthorized. Please login.' });
     next();
 };
 
 const requireAdmin = (req, res, next) => {
-    if (!req.session.user || req.session.user.role !== 'admin') {
+    if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
         return res.status(403).json({ error: 'Forbidden. Admin access required.' });
     }
     next();
@@ -53,7 +60,7 @@ const requireAdmin = (req, res, next) => {
 // Authentication Endpoints
 // -------------------------------------------------------------
 app.get('/api/auth/me', (req, res) => {
-    if (req.session.user) {
+    if (req.session && req.session.user) {
         res.json({ success: true, user: req.session.user });
     } else {
         res.json({ success: true, user: null });
@@ -66,11 +73,11 @@ app.post('/api/auth/login', async (req, res) => {
 
     try {
         const user = await get(`SELECT * FROM users WHERE username = ?`, [username]);
-        if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-        if (user.status !== 'active') return res.status(403).json({ error: 'Account is deactivated' });
+        if (!user) return res.status(401).json({ error: 'Invalid username or password' });
+        if (user.status !== 'active') return res.status(403).json({ error: 'This account has been deactivated' });
 
         const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(401).json({ error: 'Invalid credentials' });
+        if (!match) return res.status(401).json({ error: 'Invalid username or password' });
 
         req.session.user = {
             id: user.id,
@@ -81,8 +88,8 @@ app.post('/api/auth/login', async (req, res) => {
 
         res.json({ success: true, user: req.session.user });
     } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Server error' });
+        console.error('[Auth Error]', e);
+        res.status(500).json({ error: 'Server authentication error' });
     }
 });
 
@@ -93,7 +100,7 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // -------------------------------------------------------------
-// Manual Fraud Check Endpoint
+// Customer Verification Endpoint (Public & SPA)
 // -------------------------------------------------------------
 app.post('/api/check', async (req, res) => {
     const { phone, orderRef } = req.body;
@@ -101,10 +108,9 @@ app.post('/api/check', async (req, res) => {
 
     try {
         const report = await checkCustomerFraud(phone);
-        const userId = req.session.user ? req.session.user.id : null;
+        const userId = req.session && req.session.user ? req.session.user.id : null;
         const ref = orderRef || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
-        // Determine Status Badge for Table
         let statusBadge = 'Safe';
         if (report.riskLevel === 'High Risk') {
             statusBadge = (report.totalCancel >= 5 || report.successRateNumber < 30) ? 'Auto-Blocked' : 'High Risk';
@@ -112,142 +118,127 @@ app.post('/api/check', async (req, res) => {
             statusBadge = 'Medium';
         }
 
-        // Save into Verifications log
-        const insertResult = await run(`
-            INSERT INTO verifications (
-                user_id, phone, order_ref, check_type, 
-                total_orders, total_delivery, total_cancel, 
-                success_rate, risk_level, status_badge, courier_breakdown, created_at
-            ) VALUES (?, ?, ?, 'manual', ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `, [
-            userId,
-            report.phone,
-            ref,
-            report.totalOrders,
-            report.totalDelivery,
-            report.totalCancel,
-            report.successRateNumber,
-            report.riskLevel,
-            statusBadge,
-            JSON.stringify(report.courierBreakdown)
-        ]);
+        // Strict rule: ONLY store in verifications if totalOrders > 0
+        if (report.totalOrders > 0) {
+            await run(`
+                INSERT INTO verifications (
+                    user_id, phone, order_ref, check_type, 
+                    total_orders, total_delivery, total_cancel, 
+                    success_rate, risk_level, status_badge, courier_breakdown, has_whatsapp, created_at
+                ) VALUES (?, ?, ?, 'manual', ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `, [
+                userId,
+                report.phone,
+                ref,
+                report.totalOrders,
+                report.totalDelivery,
+                report.totalCancel,
+                report.successRateNumber,
+                report.riskLevel,
+                statusBadge,
+                JSON.stringify(report.courierBreakdown),
+                report.hasWhatsApp ? 1 : 0
+            ]);
+        }
 
-        report.logId = insertResult.lastID;
-        report.orderRef = ref;
-        report.statusBadge = statusBadge;
-
-        // Broadcast to notify all open clients to refresh their logs
-        io.emit('log_added');
-
-        res.json({ success: true, report });
+        res.json({ success: true, data: report });
     } catch (err) {
-        console.error('[API Check] Error:', err);
-        res.status(500).json({ error: 'Failed to check customer history' });
+        console.error('[Check API Error]', err);
+        res.status(500).json({ error: 'Failed to complete courier check', details: err.message });
     }
 });
 
 // -------------------------------------------------------------
-// History & Fraud Log API (Multi-User & Central Isolation)
+// eCommerceGo SaaS Compatibility Endpoint
 // -------------------------------------------------------------
-app.get('/api/logs', async (req, res) => {
-    const { dateFilter, search, statusFilter } = req.query;
-    const currentUser = req.session.user;
+app.all('/api/fraud-check', async (req, res) => {
+    const phone = req.body?.phone || req.query?.phone;
+    if (!phone) return res.status(400).json({ status: 'error', message: 'Phone number is required' });
 
-    let sql = `
-        SELECT v.*, u.full_name as rep_name, u.username as rep_username
-        FROM verifications v
-        LEFT JOIN users u ON v.user_id = u.id
-        WHERE 1=1
-    `;
+    try {
+        const report = await checkCustomerFraud(phone);
+        res.json({
+            status: 'success',
+            data: {
+                phone: report.phone,
+                total_orders: report.totalOrders,
+                total_delivery: report.totalDelivery,
+                total_cancel: report.totalCancel,
+                success_rate: report.successRateNumber,
+                risk_level: report.riskLevel,
+                courier_details: report.courierBreakdown
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: e.message });
+    }
+});
+
+// -------------------------------------------------------------
+// Historical Database & Fraud Log (Admin)
+// -------------------------------------------------------------
+app.get('/api/verifications', async (req, res) => {
+    const { date, filter, search, page = 1, limit = 50 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let sql = `SELECT * FROM verifications WHERE 1=1`;
     const params = [];
 
-    // Role Isolation: Representatives see only their own checked data! Admin sees EVERYTHING.
-    if (currentUser && currentUser.role === 'representative') {
-        sql += ` AND v.user_id = ?`;
-        params.push(currentUser.id);
+    // Date filtering
+    if (filter === 'today') {
+        sql += ` AND DATE(created_at, '+6 hours') = DATE('now', '+6 hours')`;
+    } else if (filter === 'yesterday') {
+        sql += ` AND DATE(created_at, '+6 hours') = DATE('now', '+6 hours', '-1 day')`;
+    } else if (date) {
+        sql += ` AND DATE(created_at, '+6 hours') = ?`;
+        params.push(date);
     }
 
-    // Date Filter (Asia/Dhaka timezone)
-    if (dateFilter === 'today') {
-        sql += ` AND date(v.created_at, '+6 hours') = date('now', '+6 hours')`;
-    } else if (dateFilter === 'yesterday') {
-        sql += ` AND date(v.created_at, '+6 hours') = date('now', '+6 hours', '-1 day')`;
-    } else if (dateFilter && dateFilter.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        sql += ` AND date(v.created_at, '+6 hours') = ?`;
-        params.push(dateFilter);
-    }
-
-    // Search Filter
-    if (search && search.trim() !== '') {
-        sql += ` AND (v.phone LIKE ? OR v.order_ref LIKE ?)`;
+    // Search filtering
+    if (search) {
+        sql += ` AND (phone LIKE ? OR order_ref LIKE ?)`;
         params.push(`%${search.trim()}%`, `%${search.trim()}%`);
     }
 
-    // Status Filter
-    if (statusFilter && statusFilter !== 'all') {
-        sql += ` AND v.status_badge = ?`;
-        params.push(statusFilter);
-    }
-
-    sql += ` ORDER BY v.id DESC LIMIT 100`;
+    sql += ` ORDER BY id DESC LIMIT ? OFFSET ?`;
+    params.push(parseInt(limit), offset);
 
     try {
         const rows = await all(sql, params);
-        res.json({ success: true, logs: rows });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to fetch logs' });
-    }
-});
-
-app.get('/api/logs/stats', async (req, res) => {
-    const currentUser = req.session.user;
-    let userConstraint = '';
-    const params = [];
-
-    if (currentUser && currentUser.role === 'representative') {
-        userConstraint = 'WHERE user_id = ?';
-        params.push(currentUser.id);
-    }
-
-    try {
-        const totalRow = await get(`SELECT COUNT(*) as count FROM verifications ${userConstraint}`, params);
-        const autoBlockedRow = await get(
-            `SELECT COUNT(*) as count FROM verifications ${userConstraint ? userConstraint + ' AND' : 'WHERE'} status_badge = 'Auto-Blocked'`,
-            params
-        );
-        const manualRow = await get(
-            `SELECT COUNT(*) as count FROM verifications ${userConstraint ? userConstraint + ' AND' : 'WHERE'} check_type = 'manual'`,
-            params
-        );
+        
+        // Aggregate totals for header cards
+        const stats = await get(`
+            SELECT 
+                COUNT(*) as totalChecks,
+                SUM(CASE WHEN status_badge = 'Auto-Blocked' THEN 1 ELSE 0 END) as autoBlocked,
+                SUM(CASE WHEN check_type = 'manual' THEN 1 ELSE 0 END) as manualChecks
+            FROM verifications
+        `);
 
         res.json({
             success: true,
-            totalVerifications: totalRow ? totalRow.count : 0,
-            autoBlocked: autoBlockedRow ? autoBlockedRow.count : 0,
-            manualChecks: manualRow ? manualRow.count : 0
+            records: rows.map(r => ({
+                ...r,
+                courier_breakdown: typeof r.courier_breakdown === 'string' ? JSON.parse(r.courier_breakdown || '[]') : r.courier_breakdown
+            })),
+            stats: {
+                totalChecks: stats?.totalChecks || 0,
+                autoBlocked: stats?.autoBlocked || 0,
+                manualChecks: stats?.manualChecks || 0
+            }
         });
-    } catch (e) {
-        res.status(500).json({ error: 'Stats error' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
 // CSV Export
-app.get('/api/logs/export-csv', async (req, res) => {
-    const currentUser = req.session.user;
-    let sql = `SELECT phone, order_ref, check_type, total_orders, total_delivery, total_cancel, success_rate, status_badge, created_at FROM verifications`;
-    const params = [];
-
-    if (currentUser && currentUser.role === 'representative') {
-        sql += ` WHERE user_id = ?`;
-        params.push(currentUser.id);
-    }
-    sql += ` ORDER BY id DESC LIMIT 2000`;
-
-    const rows = await all(sql, params);
-    let csv = "Order/Ref,Mobile Number,Type,Total Orders,Delivery,Cancel,Success Rate,Status,Date Time\n";
+app.get('/api/verifications/export', async (req, res) => {
+    const rows = await all(`SELECT phone, order_ref, check_type, total_orders, total_delivery, total_cancel, success_rate, risk_level, status_badge, created_at FROM verifications ORDER BY id DESC LIMIT 5000`);
+    
+    let csv = `Phone,Order_Ref,Type,Total_Orders,Delivery,Cancel,Success_Rate,Risk_Level,Status_Badge,Date\n`;
     rows.forEach(r => {
-        csv += `"${r.order_ref}","${r.phone}","${r.check_type}",${r.total_orders},${r.total_delivery},${r.total_cancel},"${r.success_rate}%","${r.status_badge}","${r.created_at}"\n`;
+        csv += `"${r.phone}","${r.order_ref || ''}","${r.check_type}",${r.total_orders},${r.total_delivery},${r.total_cancel},"${r.success_rate}%","${r.risk_level}","${r.status_badge}","${r.created_at}"\n`;
     });
 
     res.setHeader('Content-Type', 'text/csv');
@@ -256,34 +247,79 @@ app.get('/api/logs/export-csv', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// Auto-Harvest Controls
+// API Keys Pool Endpoints (With Anti-Spam Tracking)
 // -------------------------------------------------------------
-app.post('/api/harvest/start', async (req, res) => {
-    const { targetCount, operators } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
-    const result = await startHarvesting(io, { targetCount, operators, userId });
-    res.json(result);
+app.get('/api/admin/api-keys', async (req, res) => {
+    await resetDailyQuotaIfNeeded();
+    const keys = await all(`SELECT * FROM api_keys ORDER BY id DESC`);
+    res.json({ success: true, keys });
 });
 
-app.post('/api/harvest/stop', async (req, res) => {
-    const result = await stopHarvesting(io);
-    res.json(result);
+app.post('/api/admin/api-keys', async (req, res) => {
+    const { courierName, keyValue, dailyLimit } = req.body;
+    if (!courierName || !keyValue) return res.status(400).json({ error: 'Courier name & key value required' });
+
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+    await run(
+        `INSERT INTO api_keys (courier_name, key_value, daily_limit, usage_count, status, last_reset_date) VALUES (?, ?, ?, 0, 'active', ?)`,
+        [courierName, keyValue.trim(), parseInt(dailyLimit) || 50, todayStr]
+    );
+    res.json({ success: true });
 });
 
-app.get('/api/harvest/status', async (req, res) => {
-    const status = await getHarvestStatus();
-    res.json({ success: true, status });
+app.delete('/api/admin/api-keys/:id', async (req, res) => {
+    await run(`DELETE FROM api_keys WHERE id = ?`, [req.params.id]);
+    res.json({ success: true });
+});
+
+app.post('/api/admin/api-keys/:id/toggle', async (req, res) => {
+    const key = await get(`SELECT status FROM api_keys WHERE id = ?`, [req.params.id]);
+    if (!key) return res.status(404).json({ error: 'Key not found' });
+    const nextStatus = key.status === 'active' ? 'paused' : 'active';
+    await run(`UPDATE api_keys SET status = ? WHERE id = ?`, [nextStatus, req.params.id]);
+    res.json({ success: true, status: nextStatus });
+});
+
+app.post('/api/admin/api-keys/:id/reset', async (req, res) => {
+    await run(`UPDATE api_keys SET usage_count = 0 WHERE id = ?`, [req.params.id]);
+    res.json({ success: true });
 });
 
 // -------------------------------------------------------------
-// Admin Management Routes
+// WhatsApp Checker Endpoints
 // -------------------------------------------------------------
-app.get('/api/admin/users', requireAdmin, async (req, res) => {
+let latestQrCode = null;
+let isWhatsAppServiceEnabled = false;
+
+app.get('/api/admin/whatsapp/status', (req, res) => {
+    res.json({
+        enabled: isWhatsAppServiceEnabled,
+        qr: latestQrCode
+    });
+});
+
+app.post('/api/admin/whatsapp/toggle', async (req, res) => {
+    const { enable } = req.body;
+    isWhatsAppServiceEnabled = !!enable;
+
+    if (isWhatsAppServiceEnabled) {
+        initWhatsApp(io).catch(err => console.error('[WhatsApp Init Error]', err));
+    } else {
+        await logoutWhatsApp(io);
+        latestQrCode = null;
+    }
+    res.json({ success: true, enabled: isWhatsAppServiceEnabled });
+});
+
+// -------------------------------------------------------------
+// User Management Endpoints
+// -------------------------------------------------------------
+app.get('/api/admin/users', async (req, res) => {
     const users = await all(`SELECT id, username, full_name, role, status, created_at FROM users ORDER BY id DESC`);
     res.json({ success: true, users });
 });
 
-app.post('/api/admin/users', requireAdmin, async (req, res) => {
+app.post('/api/admin/users', async (req, res) => {
     const { username, password, full_name, role } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
@@ -291,19 +327,17 @@ app.post('/api/admin/users', requireAdmin, async (req, res) => {
         const hash = await bcrypt.hash(password, 10);
         const result = await run(
             `INSERT INTO users (username, password, full_name, role, status) VALUES (?, ?, ?, ?, 'active')`,
-            [username, hash, full_name || username, role || 'representative']
+            [username.trim(), hash, full_name || username.trim(), role || 'representative']
         );
         res.json({ success: true, userId: result.lastID });
     } catch (e) {
         if (e.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username already taken' });
-        res.status(500).json({ error: 'Error creating user' });
+        res.status(500).json({ error: 'Failed to create user' });
     }
 });
 
-app.post('/api/admin/users/:id/toggle', requireAdmin, async (req, res) => {
+app.post('/api/admin/users/:id/toggle', async (req, res) => {
     const targetId = parseInt(req.params.id);
-    if (targetId === req.session.user.id) return res.status(400).json({ error: 'Cannot deactivate yourself' });
-
     const user = await get(`SELECT status FROM users WHERE id = ?`, [targetId]);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -312,57 +346,24 @@ app.post('/api/admin/users/:id/toggle', requireAdmin, async (req, res) => {
     res.json({ success: true, status: nextStatus });
 });
 
-app.delete('/api/admin/users/:id', requireAdmin, async (req, res) => {
-    const targetId = parseInt(req.params.id);
-    if (targetId === req.session.user.id) return res.status(400).json({ error: 'Cannot delete yourself' });
-
-    await run(`DELETE FROM users WHERE id = ?`, [targetId]);
+app.delete('/api/admin/users/:id', async (req, res) => {
+    await run(`DELETE FROM users WHERE id = ?`, [req.params.id]);
     res.json({ success: true });
 });
 
-// Global API Keys Pool
-app.get('/api/admin/api-keys', requireAdmin, async (req, res) => {
-    await resetDailyQuotaIfNeeded();
-    const keys = await all(`SELECT * FROM api_keys ORDER BY id DESC`);
-    res.json({ success: true, keys });
+// Socket.io for live events
+io.on('connection', (socket) => {
+    socket.on('register_qr_listener', () => {
+        if (latestQrCode) socket.emit('qr_code', latestQrCode);
+    });
 });
 
-app.post('/api/admin/api-keys', requireAdmin, async (req, res) => {
-    const { courierName, keyValue, dailyLimit } = req.body;
-    if (!courierName || !keyValue) return res.status(400).json({ error: 'Courier name & key value required' });
-
-    await run(
-        `INSERT INTO api_keys (courier_name, key_value, daily_limit, usage_count, status) VALUES (?, ?, ?, 0, 'active')`,
-        [courierName, keyValue, parseInt(dailyLimit) || 50]
-    );
-    res.json({ success: true });
+// Catch QR events
+io.on('qr_code', (qr) => {
+    latestQrCode = qr;
 });
 
-app.delete('/api/admin/api-keys/:id', requireAdmin, async (req, res) => {
-    await run(`DELETE FROM api_keys WHERE id = ?`, [req.params.id]);
-    res.json({ success: true });
-});
-
-app.post('/api/admin/api-keys/:id/reset', requireAdmin, async (req, res) => {
-    await run(`UPDATE api_keys SET usage_count = 0 WHERE id = ?`, [req.params.id]);
-    res.json({ success: true });
-});
-
-// Central Customers Intelligence List (Admin View)
-app.get('/api/admin/central-customers', requireAdmin, async (req, res) => {
-    const { search } = req.query;
-    let sql = `SELECT * FROM central_customers`;
-    const params = [];
-    if (search) {
-        sql += ` WHERE phone LIKE ?`;
-        params.push(`%${search.trim()}%`);
-    }
-    sql += ` ORDER BY last_checked_at DESC LIMIT 100`;
-    const customers = await all(sql, params);
-    res.json({ success: true, customers });
-});
-
-// Initialize DB and Start
+// Start Server
 const PORT = 3000;
 (async () => {
     try {
