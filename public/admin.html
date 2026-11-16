@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Administrator Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050508;
+            --bg-app: #08080b;
+            --bg-card: #0d0d13;
+            --border-color: #1b1b24;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --sidebar-width: 250px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            height: 100vh;
+            padding: 2rem 1.25rem;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--primary);
+            border-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .logout-btn {
+            color: var(--danger);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 2.25rem 3rem;
+            overflow-y: auto;
+            height: 100vh;
+            background: var(--bg-app);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+        }
+
+        .metric-icon.blue { color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+        .metric-icon.green { color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .metric-icon.purple { color: #a855f7; background: rgba(168, 85, 247, 0.05); }
+
+        .metric-info h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-info p {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* User List Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.6rem 1.25rem;
+            background: var(--primary);
+            color: white;
+            border: 1px solid transparent;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: var(--text-muted);
+        }
+
+        .action-btn.deactivate {
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .action-btn.deactivate:hover {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: var(--danger);
+        }
+
+        .action-btn.activate {
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .action-btn.activate:hover {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--success);
+        }
+
+        .action-btn.delete {
+            border-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            padding: 0.4rem;
+        }
+
+        .action-btn.delete:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .action-btn:disabled, .action-btn:disabled:hover {
+            background: transparent !important;
+            border-color: rgba(255,255,255,0.03) !important;
+            color: var(--text-muted) !important;
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        /* Table Design */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.01);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .badge-deactivated {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .badge-role-admin {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            color: #c084fc;
+        }
+
+        .badge-role-user {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #60a5fa;
+        }
+
+        /* LED indicator dot */
+        .led-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .led-online {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .led-offline {
+            background: var(--text-muted);
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            width: 100%;
+            max-width: 480px;
+            padding: 2.25rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            transform: scale(0.95);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-full {
+            grid-column: span 2;
+        }
+
+        .form-group-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group-modal label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group-modal input, .form-group-modal select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-group-modal input:focus, .form-group-modal select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-error {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>SaaS Admin</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Users Control</span>
+                </div>
+                <a href="/" class="nav-item">
+                    <i class="fa-solid fa-square-arrow-up-right"></i>
+                    <span>Launch Customer App</span>
+                </a>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/api/logout" class="nav-item logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Administrator Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="header-section">
+            <div class="header-title">
+                <h1>Platform Control Center</h1>
+                <p>Configure subscriptions, register endpoints, and manage customer accounts.</p>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon blue">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="metric-info">
+                    <h4>Total Registered</h4>
+                    <p id="metric-total">0</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon green">
+                    <i class="fa-solid fa-wifi"></i>
+                </div>
+                <div class="metric-info">
+                    <h4>Online Sessions</h4>
+                    <p id="metric-online">0</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon purple">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div class="metric-info">
+                    <h4>Status Environment</h4>
+                    <p>Production</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Registered Users & Subscriptions</h3>
+                <button class="btn" onclick="openCreateModal()">
+                    <i class="fa-solid fa-user-plus"></i> Add Account
+                </button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Status Badge</th>
+                            <th>Session Status</th>
+                            <th style="text-align: right;">Administrative Control</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <tr>
+                            <td colspan="6" style="text-align:center; color: var(--text-muted);">
+                                <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i> Querying database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal Overlay -->
+    <div class="modal-overlay" id="create-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Add New Account</h3>
+                <button class="modal-close" onclick="closeCreateModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-error" id="modal-error">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="modal-error-text">Failed to register user.</span>
+            </div>
+            <form id="create-user-form">
+                <div class="form-grid">
+                    <div class="form-group-modal">
+                        <label for="new-username">Username</label>
+                        <input type="text" id="new-username" required placeholder="john_doe">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="new-password">Password</label>
+                        <input type="password" id="new-password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="new-role">Account Privilege</label>
+                        <select id="new-role">
+                            <option value="user">User (Standard Customer)</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="new-plan">Subscription Plan</label>
+                        <select id="new-plan">
+                            <option value="Free Trial">Free Trial</option>
+                            <option value="Pro Monthly">Pro Monthly</option>
+                            <option value="Enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="new-email">Email Address</label>
+                        <input type="email" id="new-email" placeholder="john@example.com">
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="new-phone">Phone Number</label>
+                        <input type="text" id="new-phone" placeholder="01712345678">
+                    </div>
+                    <div class="form-group-modal form-full">
+                        <label for="new-expires">Plan Expiration Date</label>
+                        <input type="date" id="new-expires">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                    <button type="submit" class="btn">Register Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentAdmin = null;
+
+        async function fetchAdminProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                if (data.success) {
+                    currentAdmin = data.user;
+                }
+            } catch (err) {
+                console.error("Error fetching admin profile:", err);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users');
+                const data = await res.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('users-table');
+                    tbody.innerHTML = '';
+                    
+                    let onlineCount = 0;
+                    document.getElementById('metric-total').innerText = data.users.length;
+                    
+                    data.users.forEach(u => {
+                        if (u.isLoggedIn) onlineCount++;
+                        
+                        const isSelf = currentAdmin && currentAdmin.id === u.id;
+                        const statusBadge = u.plan_status === 'Active' 
+                            ? `<span class="badge badge-active"><i class="fa-solid fa-circle-check"></i> Active</span>`
+                            : `<span class="badge badge-deactivated"><i class="fa-solid fa-circle-xmark"></i> Deactivated</span>`;
+                        
+                        const roleBadge = u.role === 'admin'
+                            ? `<span class="badge badge-role-admin"><i class="fa-solid fa-user-shield"></i> Admin</span>`
+                            : `<span class="badge badge-role-user"><i class="fa-solid fa-user"></i> User</span>`;
+
+                        const led = u.isLoggedIn
+                            ? `<span class="led-dot led-online"></span><span style="font-size:0.85rem; font-weight:600; color:var(--success);">Online</span>`
+                            : `<span class="led-dot led-offline"></span><span style="font-size:0.85rem; color:var(--text-muted);">Offline</span>`;
+
+                        // If user is active, we offer deactivation. If deactivated, activation.
+                        const toggleButtonText = u.plan_status === 'Active' ? 'Deactivate' : 'Activate';
+                        const toggleButtonClass = u.plan_status === 'Active' ? 'deactivate' : 'activate';
+                        const toggleButtonIcon = u.plan_status === 'Active' 
+                            ? '<i class="fa-solid fa-user-slash"></i>' 
+                            : '<i class="fa-solid fa-user-check"></i>';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td style="font-weight:600; color:var(--text-muted);">#${u.id}</td>
+                                <td style="font-weight:600;">${u.username} ${isSelf ? '<span style="font-size:0.75rem; color:var(--primary); font-weight:normal;">(you)</span>' : ''}</td>
+                                <td>${roleBadge}</td>
+                                <td>${statusBadge}</td>
+                                <td><div style="display:flex; align-items:center;">${led}</div></td>
+                                <td style="text-align: right;">
+                                    <div style="display:inline-flex; gap:8px;">
+                                        <button 
+                                            class="action-btn ${toggleButtonClass}" 
+                                            onclick="toggleUserStatus(${u.id}, '${u.plan_status}')" 
+                                            ${isSelf ? 'disabled' : ''}
+                                            title="${isSelf ? 'Cannot modify your own account status' : toggleButtonText + ' Account'}"
+                                        >
+                                            ${toggleButtonIcon} ${toggleButtonText}
+                                        </button>
+                                        <button 
+                                            class="action-btn delete" 
+                                            onclick="deleteUser(${u.id}, '${u.username}')" 
+                                            ${isSelf ? 'disabled' : ''}
+                                            title="${isSelf ? 'Cannot delete your own account' : 'Delete Account'}"
+                                        >
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    document.getElementById('metric-online').innerText = onlineCount;
+                } else {
+                    window.location.href = '/admin/login';
+                }
+            } catch (e) {
+                console.error(e);
+                window.location.href = '/admin/login';
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('create-modal').classList.add('active');
+            document.getElementById('modal-error').style.display = 'none';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('create-modal').classList.remove('active');
+            document.getElementById('create-user-form').reset();
+        }
+
+        document.getElementById('create-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('new-username').value;
+            const password = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+            const plan_name = document.getElementById('new-plan').value;
+            const email = document.getElementById('new-email').value;
+            const phone = document.getElementById('new-phone').value;
+            const plan_expires = document.getElementById('new-expires').value;
+
+            const errorBox = document.getElementById('modal-error');
+            const errorText = document.getElementById('modal-error-text');
+
+            errorBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role, plan_name, email, phone, plan_expires })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeCreateModal();
+                    loadUsers();
+                } else {
+                    errorText.innerText = data.error || 'Failed to create user.';
+                    errorBox.style.display = 'inline-flex';
+                }
+            } catch (err) {
+                errorText.innerText = 'Server error creating account.';
+                errorBox.style.display = 'inline-flex';
+            }
+        });
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const targetStatus = currentStatus === 'Active' ? 'Deactivated' : 'Active';
+            const actionText = currentStatus === 'Active' ? 'deactivate' : 'activate';
+            
+            if (!confirm(`Are you sure you want to ${actionText} this user?`)) return;
+
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/toggle-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: targetStatus })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to change status.');
+                }
+            } catch (err) {
+                alert('Network connection error.');
+            }
+        }
+
+        async function deleteUser(userId, username) {
+            if (!confirm(`WARNING: Are you absolutely sure you want to delete account "${username}"?\nThis action cannot be undone.`)) return;
+
+            try {
+                const res = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to delete user.');
+                }
+            } catch (err) {
+                alert('Network connection error.');
+            }
+        }
+
+        // Init load
+        (async () => {
+            await fetchAdminProfile();
+            await loadUsers();
+        })();
+    </script>
+</body>
+</html>

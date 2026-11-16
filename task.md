@@ -1,0 +1,29 @@
+# Task List - AI Customer Data Checker Upgrades
+
+- `[x]` **Step 1: SQLite Database Schema Migration (`sqlite_db.js`)**
+  - Add column migration step to add the `courier` column to the `scans` table.
+  - Create the `api_keys` table to store `id`, `user_id`, `courier_name`, `key_value`, `status`, `usage_count`, and `last_reset_time`.
+- `[x]` **Step 2: SQLite Operations & User Isolation (`database.js`)**
+  - Update `saveCustomerData(data, userId)` to write to SQLite `scans` table instead of Excel directly.
+  - Update `getAllData(userId)` and `deleteCustomerRecord(phone, userId)` for user data isolation.
+  - Implement dynamic Excel stream generator `generateUserExcel(userId)`.
+  - Implement API key database operations: `addApiKey`, `getApiKeys`, `incrementKeyUsage`, `deleteApiKey`, and `resetDailyUsageIfNeeded`.
+- `[x]` **Step 3: Generic API Key Rotation Manager (`courierApiManager.js`)**
+  - Implement random key selection strategy from the SQLite pool for a requested courier.
+  - Track and check daily usage limit (50 requests/key) and filter active keys.
+- `[x]` **Step 4: Multi-Source Scraper (`fraudChecker.js`)**
+  - Integrate Puppeteer stealth scraper for `https://fraudchecker.link`.
+  - Implement fallback and data aggregation logic between EliteMart and FraudChecker.link.
+- `[x]` **Step 5: Express Server Routing & Socket.io Events (`index.js`)**
+  - Add API routes and Socket.io handlers for API key CRUD operations.
+  - Bind user session IDs to scan data operations.
+  - Integrate key rotation fallback inside the main scanning queue loop.
+- `[x]` **Step 6: UI Design Integration & Asset Binding (`public/index.html` & `public/style.css`)**
+  - Integrate the premium v0.app layout and styles.
+  - Insert the new API tab between Analytics and Profile tabs.
+  - Map dynamic elements (gauge circle, CRT text spin, soundwave equalizer).
+  - Add HTML5 Audio triggers for scanner events (`generate.mp3`, `success.mp3`, `fail.mp3`, `complete.mp3`).
+- `[x]` **Step 7: Manual Verification & Testing**
+  - Verify layout responsiveness.
+  - Test API key additions, daily usage counts, and key rotation.
+  - Test multi-source scraping, audio triggers, and Excel exporting.

@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[14251,["/_next/static/chunks/06h-ke2gpy92n.js","/_next/static/chunks/14g97lsmy4zxs.js"],"ViewportBoundary"]
+3:I[14251,["/_next/static/chunks/06h-ke2gpy92n.js","/_next/static/chunks/14g97lsmy4zxs.js"],"MetadataBoundary"]
+4:"$Sreact.suspense"
+5:I[69978,["/_next/static/chunks/06h-ke2gpy92n.js","/_next/static/chunks/14g97lsmy4zxs.js"],"IconMark"]
+0:{"rsc":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L2",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#161616","media":"(prefers-color-scheme: dark)"}],["$","meta","3",{"name":"color-scheme","content":"dark"}]]}],["$","div",null,{"hidden":true,"children":["$","$L3",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"AI Courier Data Analytic Pro"}],["$","meta","1",{"name":"description","content":"AI-powered fraud detection and real-time courier data analysis"}],["$","meta","2",{"name":"generator","content":"v0.app"}],["$","link","3",{"rel":"icon","href":"/icon.svg","type":"image/svg+xml"}],["$","$L5","4",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"xIIrxRg7kM7dMK-a90BUm"}

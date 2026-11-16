@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Login - AI Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Outfit', sans-serif; background: #09090b; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-box { background: rgba(24,24,27,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 2.5rem; border-radius: 1rem; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo i { font-size: 2.5rem; color: #3b82f6; text-shadow: 0 0 15px rgba(59,130,246,0.6); }
+        .logo h2 { margin: 10px 0 0; font-weight: 600; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: #a1a1aa; }
+        input { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: #fff; font-family: inherit; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #3b82f6; }
+        button { width: 100%; padding: 0.85rem; background: #3b82f6; color: #fff; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        button:hover { background: #2563eb; box-shadow: 0 0 15px rgba(59,130,246,0.5); }
+        .error-msg { color: #ef4444; text-align: center; font-size: 0.85rem; margin-top: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <i class="fa-solid fa-robot"></i>
+            <h2>SaaS Login</h2>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required placeholder="Enter your username or email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+            </div>
+            <button type="submit">Sign In</button>
+            <div class="error-msg" id="error-msg">Invalid credentials!</div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = data.role === 'admin' ? '/admin' : '/';
+            } else {
+                const err = document.getElementById('error-msg');
+                err.innerText = data.error;
+                err.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

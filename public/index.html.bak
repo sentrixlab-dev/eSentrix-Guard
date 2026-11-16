@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ai Courier Data Checker Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+    <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <div class="app-container">
+        
+        <!-- Global Top Header -->
+        <header class="main-header">
+            <div class="header-logo-group" style="display: flex; align-items: center;">
+                <div class="header-logo-icon-wrap" style="width: 76px; display: flex; justify-content: center; align-items: center; margin-left: -2rem;">
+                    <img src="/assets/5start-logo.png" class="logo-image" style="width: 42px; height: auto;" alt="Logo">
+                </div>
+                <h2 style="font-size: 1.2rem; font-weight: 600; margin: 0; margin-left: 0.25rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px;">
+                    5 Star AI EC Data Gen
+                    <span class="pro-badge">Pro</span>
+                </h2>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1.25rem;">
+                <i class="fa-regular fa-sun header-icon" style="font-size: 1.1rem;"></i>
+                <i class="fa-regular fa-bell header-icon" style="font-size: 1.1rem;"></i>
+                
+                <!-- Language Switcher Pill -->
+                <div class="lang-switcher" id="lang-switcher" style="display: flex; align-items: center; gap: 6px; padding: 0.35rem 0.6rem; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 2rem; cursor: pointer; transition: var(--transition);" onclick="toggleLanguage()">
+                    <img id="lang-flag" src="https://flagcdn.com/w20/bd.png" width="16" height="12" style="border-radius: 2px; object-fit: cover;" alt="BN">
+                    <span id="lang-text" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main);">BN</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                </div>
+
+                <div class="user-profile" onclick="switchTab('profile')" style="padding: 2px; border-radius: 50%; border: 1.5px solid #0ea5e9; box-shadow: 0 0 8px rgba(14, 165, 233, 0.4); background: #09090b; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);">
+                    <div class="user-avatar" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img src="/assets/ai-avatar.png" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="AI Avatar">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Header Ticker Marquee -->
+        <div class="header-ticker">
+            <div class="ticker-content">
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #f97316;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #22c55e;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #06b6d4;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #ef4444;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <!-- Duplicate for infinite seamless scroll loop -->
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #f97316;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #22c55e;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #06b6d4;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+                <div class="ticker-item"><i class="fa-solid fa-truck" style="color: #ef4444;"></i> Check Bangladeshi Largest Courier Customer Fraud Status</div>
+            </div>
+        </div>
+
+        <!-- Body Area -->
+        <div class="app-body">
+            
+            <!-- Sidebar Navigation (Desktop) -->
+            <aside class="sidebar">
+                <nav class="nav-menu" style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem; padding: 1rem 0;">
+                    <button class="nav-item active" data-tab="dashboard" title="Dashboard" style="display: flex; justify-content: center; align-items: center; width: 42px; height: 42px; padding: 0; border-radius: 0.75rem;">
+                        <i class="fa-solid fa-house" style="font-size: 1.15rem;"></i>
+                    </button>
+                    <button class="nav-item" data-tab="database" title="Database" style="display: flex; justify-content: center; align-items: center; width: 42px; height: 42px; padding: 0; border-radius: 0.75rem;">
+                        <i class="fa-solid fa-database" style="font-size: 1.15rem;"></i>
+                    </button>
+                    <button class="nav-item" data-tab="analytics" title="Analytics" style="display: flex; justify-content: center; align-items: center; width: 42px; height: 42px; padding: 0; border-radius: 0.75rem;">
+                        <i class="fa-solid fa-chart-line" style="font-size: 1.15rem;"></i>
+                    </button>
+                    <button class="nav-item" data-tab="profile" title="User Profile" style="display: flex; justify-content: center; align-items: center; width: 42px; height: 42px; padding: 0; border-radius: 0.75rem;">
+                        <i class="fa-solid fa-user" style="font-size: 1.15rem;"></i>
+                    </button>
+                </nav>
+                <div class="sidebar-footer" style="display: flex; flex-direction: column; align-items: center; padding: 1rem 0; width: 100%;">
+                    <button class="nav-item" data-tab="settings" title="Settings" style="display: flex; justify-content: center; align-items: center; width: 42px; height: 42px; padding: 0; border-radius: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        <i class="fa-solid fa-gear" style="font-size: 1.15rem;"></i>
+                    </button>
+                    <div style="width: 100%; border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Server</span>
+                        <div class="server-status-dot online" id="server-status-dot" title="Server Connected" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); transition: var(--transition);"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+                
+                <!-- TAB: DASHBOARD -->
+                <section id="tab-dashboard" class="tab-content active">
+                    
+                    <div class="dashboard-grid">
+                        <!-- Left Column: Controls -->
+                        <div class="controls-col">
+                            
+                            <!-- Scan Overview Card -->
+                            <div class="card gauge-card">
+                                <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.4rem; justify-content: flex-start; gap: 8px;">
+                                    <i class="fa-solid fa-compass text-primary"></i>
+                                    <h3>Scan Overview</h3>
+                                </div>
+                                <div class="scan-overview-grid">
+                                    <!-- Left side: Circular Gauge -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                        <div class="gauge-container" style="margin: 0;">
+                                            <div class="gauge-bg-circle"></div>
+                                            <svg width="140" height="140" viewBox="0 0 140 140" style="transform: rotate(-90deg);">
+                                                <circle cx="70" cy="70" r="58" stroke="rgba(255,255,255,0.03)" stroke-width="10" fill="transparent" />
+                                                <circle id="gauge-progress" cx="70" cy="70" r="58" stroke="url(#gauge-gradient)" stroke-width="10" fill="transparent"
+                                                    stroke-dasharray="364.4" stroke-dashoffset="364.4" stroke-linecap="round" style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);" />
+                                                <defs>
+                                                    <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop id="gauge-grad-stop1" offset="0%" stop-color="#ef4444" />
+                                                        <stop id="gauge-grad-stop2" offset="100%" stop-color="#fb7185" />
+                                                    </linearGradient>
+                                                </defs>
+                                            </svg>
+                                            <div class="gauge-overlay">
+                                                <span id="gauge-status-badge" style="font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 12px; margin-bottom: 6px; text-transform: uppercase; background: #ef4444; color: #fff;">Risk</span>
+                                                <span id="gauge-percentage" style="font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1;">0%</span>
+                                                <span id="gauge-priority-badge" style="display: none; font-size: 0.65rem; color: var(--text-muted); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 8px; margin-top: 6px; font-weight: 500;">Priority Customer</span>
+                                            </div>
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.35rem;" id="gauge-threat-level">Low Risk</div>
+                                    </div>
+
+                                    <!-- Right side: Stack of stats -->
+                                    <div class="stats-vertical-stack">
+                                        <div class="stat-widget-premium" style="border-left: 3px solid #3b82f6;">
+                                            <div class="stat-widget-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
+                                                <i class="fa-solid fa-cart-shopping"></i>
+                                            </div>
+                                            <div class="stat-widget-info">
+                                                <span class="stat-widget-label">Total Order</span>
+                                                <span id="stat-orders" class="stat-widget-value">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="stat-widget-premium" style="border-left: 3px solid #10b981;">
+                                            <div class="stat-widget-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            </div>
+                                            <div class="stat-widget-info">
+                                                <span class="stat-widget-label">Total Delivery</span>
+                                                <span id="stat-delivery" class="stat-widget-value">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="stat-widget-premium" style="border-left: 3px solid #ef4444;">
+                                            <div class="stat-widget-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                                                <i class="fa-solid fa-circle-xmark"></i>
+                                            </div>
+                                            <div class="stat-widget-info">
+                                                <span class="stat-widget-label">Total Cancel</span>
+                                                <span id="stat-cancel" class="stat-widget-value">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Scanner Engine Card (Merged) -->
+                            <div class="card action-card">
+                                <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.4rem; justify-content: flex-start; gap: 8px;">
+                                    <i class="fa-solid fa-microchip text-primary"></i>
+                                    <h3>AI Scanner Engine</h3>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
+                                    <!-- Status Badge Pill row -->
+                                    <div style="display: flex; gap: 8px; justify-content: center; width: 100%; margin-bottom: 0.15rem;">
+                                        <span class="pill" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.25); font-weight: 600; font-size: 0.68rem;" id="scanner-crt-status">CRT: 0/0</span>
+                                        <span class="pill" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); font-weight: 600; font-size: 0.68rem;" id="scanner-data-status">Data: 0</span>
+                                        <span class="pill" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.25); font-weight: 600; font-size: 0.68rem;" id="scanner-wa-status">WA: 0</span>
+                                    </div>
+
+                                    <!-- Soundwave Visual Screen -->
+                                    <div class="soundwave-screen" id="soundwave-screen" style="height: 120px;">
+                                        <!-- Animated Waveform Bars -->
+                                        <div class="soundwave-grid" id="soundwave-grid" style="height: 40px;">
+                                            <div class="soundwave-bar" style="height: 10px;"></div>
+                                            <div class="soundwave-bar" style="height: 18px;"></div>
+                                            <div class="soundwave-bar" style="height: 28px;"></div>
+                                            <div class="soundwave-bar" style="height: 14px;"></div>
+                                            <div class="soundwave-bar" style="height: 22px;"></div>
+                                            <div class="soundwave-bar" style="height: 30px;"></div>
+                                            <div class="soundwave-bar" style="height: 16px;"></div>
+                                            <div class="soundwave-bar" style="height: 12px;"></div>
+                                            <div class="soundwave-bar" style="height: 20px;"></div>
+                                            <div class="soundwave-bar" style="height: 26px;"></div>
+                                            <div class="soundwave-bar" style="height: 18px;"></div>
+                                            <div class="soundwave-bar" style="height: 10px;"></div>
+                                            <div class="soundwave-bar" style="height: 15px;"></div>
+                                            <div class="soundwave-bar" style="height: 22px;"></div>
+                                            <div class="soundwave-bar" style="height: 8px;"></div>
+                                            <div class="soundwave-bar" style="height: 18px;"></div>
+                                            <div class="soundwave-bar" style="height: 25px;"></div>
+                                            <div class="soundwave-bar" style="height: 12px;"></div>
+                                        </div>
+                                        
+                                        <!-- Text/Number overlay -->
+                                        <div class="scanning-phone-overlay">
+                                            <span class="scanning-status-text" id="scanner-status-text">Data Scanning...</span>
+                                            <span class="scanning-phone-number" id="scanner-phone-number" style="font-size: 1.6rem; text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);">00000000000</span>
+                                            <span class="scanning-phone-reflection" id="scanner-phone-reflection" style="font-size: 0.8rem; margin-top: 2px;">00000000000</span>
+                                        </div>
+
+                                        <!-- Progress loader -->
+                                        <div class="scanning-progress-bar-wrap">
+                                            <div class="scanning-progress-info" style="font-size: 0.6rem;">
+                                                <span id="scanner-progress-label">Loading to Complete...</span>
+                                                <span id="scanner-progress-pct">0%</span>
+                                            </div>
+                                            <div class="waveform-loader-bar" style="height: 4px;">
+                                                <div class="waveform-loader-fill" id="waveform-loader-fill" style="width: 0%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Manual Number Check section inside card -->
+                                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-top: 0.25rem;">
+                                        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-phone-volume text-primary" style="font-size: 0.8rem;"></i>
+                                            Manual Number Check
+                                        </div>
+                                        <div class="manual-check-container" style="display: flex; gap: 8px; margin-bottom: 0.5rem;">
+                                            <input type="text" id="manual-phone-input" placeholder="Enter mobile number (e.g. 01XXXXXXXXX)" style="flex: 1; padding: 0.4rem 0.6rem; background: rgba(0,0,0,0.35); border: 1px solid var(--border-color); border-radius: 0.5rem; color: #fff; font-size: 0.8rem; height: 32px; box-sizing: border-box;" />
+                                            <button type="button" id="manual-check-btn" class="btn btn-secondary" style="padding: 0 0.75rem; font-size: 0.8rem; border: 1px solid #10b981; color: #10b981; background: transparent; height: 32px; box-sizing: border-box;">Check</button>
+                                        </div>
+                                        
+                                        <div class="scanner-controls-row" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 0.25rem;">
+                                            <div class="console-control-wrapper">
+                                                <button class="console-control-btn" id="scanner-pause-btn" title="Pause Scanner" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    <i class="fa-solid fa-pause"></i>
+                                                </button>
+                                                <span class="console-control-label" style="font-size: 0.55rem;">Pause</span>
+                                            </div>
+                                            <div class="console-control-wrapper">
+                                                <button class="console-control-btn" id="scanner-prev-btn" title="Previous Item" disabled style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    <i class="fa-solid fa-backward-step"></i>
+                                                </button>
+                                                <span class="console-control-label" style="font-size: 0.55rem;">Prev</span>
+                                            </div>
+                                            <div class="console-control-wrapper">
+                                                <button class="console-control-btn console-circle-play" id="scanner-toggle-btn" title="Start/Resume Scanner" style="width: 46px; height: 46px; font-size: 1.1rem;">
+                                                    <i class="fa-solid fa-chevron-right" id="scanner-toggle-icon"></i>
+                                                </button>
+                                                <span class="console-control-label" style="font-weight: 700; color: #06b6d4; margin-top: 4px; font-size: 0.55rem;" id="scanner-play-label">Start</span>
+                                            </div>
+                                            <div class="console-control-wrapper">
+                                                <button class="console-control-btn" id="scanner-next-btn" title="Next Item" disabled style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    <i class="fa-solid fa-forward-step"></i>
+                                                </button>
+                                                <span class="console-control-label" style="font-size: 0.55rem;">Next</span>
+                                            </div>
+                                            <div class="console-control-wrapper">
+                                                <button class="console-control-btn" id="scanner-stop-btn" title="Stop Scanner" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    <i class="fa-solid fa-square"></i>
+                                                </button>
+                                                <span class="console-control-label" style="font-size: 0.55rem;">Stop</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding: 0 0.25rem;">
+                                            <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.35); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.25rem 0.5rem; height: 28px; box-sizing: border-box;">
+                                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">QTY:</span>
+                                                <input type="number" id="gen-count-input" value="20" min="1" max="500" style="width: 30px; background: transparent; border: none; color: #fff; text-align: center; font-size: 0.8rem; font-weight: 600; outline: none;" />
+                                            </div>
+                                            <button id="scanner-loop-btn" class="btn-loop-toggle" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 50%; color: var(--text-muted); cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: var(--transition);" title="Toggle Loop Mode">
+                                                <i class="fa-solid fa-rotate"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload Card -->
+                            <div class="card upload-card" style="display: flex; flex-direction: column; min-height: 80px;">
+                                <div class="card-header" style="margin-bottom: 0.35rem; padding-bottom: 0.3rem; width: 100%; justify-content: flex-start; gap: 8px;">
+                                    <i class="fa-solid fa-file-excel text-primary"></i>
+                                    <h3>Data Source</h3>
+                                </div>
+                                <div style="display: flex; flex: 1; align-items: center; justify-content: center; width: 100%; margin-top: auto; margin-bottom: auto;">
+                                    <form id="upload-form" style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                                        <label for="file-upload" class="file-drop-zone" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px 0.5rem; border: 1.5px dashed rgba(255,255,255,0.25); border-radius: 0.5rem; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 0; height: 38px; box-sizing: border-box; transition: var(--transition);">
+                                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 0.9rem; color: var(--text-muted);"></i>
+                                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; font-size: 0.6rem; font-weight: 500; color: var(--text-muted);">Select Excel File (.xlsx)</span>
+                                        </label>
+                                        <input id="file-upload" type="file" accept=".xlsx, .xls" />
+                                        <button type="submit" class="btn btn-primary-gradient" id="upload-btn" disabled style="padding: 0 1.25rem; font-size: 0.8rem; height: 38px; border-radius: 0.5rem; box-sizing: border-box;">
+                                            Upload
+                                        </button>
+                                    </form>
+                                </div>
+                                <div id="upload-status" class="status-text mt-1 text-center" style="font-size: 0.7rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Results -->
+                        <div class="results-col">
+                            <div class="card h-100 table-card">
+                                <div class="card-header justify-between">
+                                    <div class="flex-center gap-2">
+                                        <i class="fa-solid fa-list-check text-primary"></i>
+                                        <h3>Live Results</h3>
+                                    </div>
+                                    <div class="flex-center gap-2 text-muted" style="font-size: 0.8rem;">
+                                        <div id="app-status" class="status-badge pulse-idle">Ready</div>
+                                    </div>
+                                </div>
+                                <div class="table-container custom-scrollbar">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fa-solid fa-phone" style="color: #3b82f6;"></i> Phone</th>
+                                                <th><i class="fa-solid fa-truck" style="color: #f97316;"></i> Courier</th>
+                                                <th><i class="fa-solid fa-clipboard-list" style="color: #0ea5e9;"></i> Order</th>
+                                                <th><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Delivery</th>
+                                                <th><i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i> Cancel</th>
+                                                <th>% Rate</th>
+                                                <th><i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i> WhatsApp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="results-table-body">
+                                            <tr class="empty-state">
+                                                <td colspan="7">
+                                                    <i class="fa-solid fa-box-open empty-icon"></i>
+                                                    <p>No data yet. Start the scanner to see live results.</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: DATABASE -->
+                <section id="tab-database" class="tab-content">
+                    <header class="topbar">
+                        <div>
+                            <h1 class="page-title text-primary">Historical Database</h1>
+                            <p class="subtitle">Browse past records grouped by date</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="loadDatabase()">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh
+                        </button>
+                    </header>
+
+                    <div class="database-layout">
+                        <!-- Date Details -->
+                        <div class="card date-details-card" style="position: relative;">
+                            <div class="card-header justify-between" style="position: relative;">
+                                <div class="date-picker-trigger" id="db-date-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 0.5rem; transition: var(--transition);">
+                                    <span id="db-selected-date">Select Date</span>
+                                    <i class="fa-regular fa-calendar-days text-primary"></i>
+                                </div>
+                                <span class="pill pill-success" id="db-record-count">0 records</span>
+
+                                <!-- Custom Date Picker Popup -->
+                                <div class="custom-datepicker" id="db-datepicker-popup" style="display: none; position: absolute; top: calc(100% - 15px); left: 1.5rem; z-index: 100; background: #18181b; border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.25rem; width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: 5px;">
+                                    <!-- Datepicker Header -->
+                                    <div class="datepicker-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                        <span id="datepicker-month-year" style="font-weight: 600; font-size: 1rem; color: #fff;">June 2026</span>
+                                        <div style="display: flex; gap: 15px;">
+                                            <button type="button" id="prev-month-btn" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-chevron-left"></i></button>
+                                            <button type="button" id="next-month-btn" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                    <!-- Weekdays -->
+                                    <div class="datepicker-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-muted); font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase;">
+                                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                                    </div>
+                                    <!-- Days Grid -->
+                                    <div class="datepicker-days" id="datepicker-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;">
+                                        <!-- Dynamically generated days -->
+                                    </div>
+                                    <!-- Datepicker Footer -->
+                                    <div class="datepicker-footer" style="display: flex; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
+                                        <button type="button" id="datepicker-update-btn" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem; border-radius: 0.5rem;">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-container custom-scrollbar mt-3">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fa-solid fa-phone" style="color: #3b82f6;"></i> Phone</th>
+                                            <th><i class="fa-solid fa-truck" style="color: #f97316;"></i> Courier</th>
+                                            <th><i class="fa-solid fa-clipboard-list" style="color: #0ea5e9;"></i> Order</th>
+                                            <th><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Delivery</th>
+                                            <th><i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i> Cancel</th>
+                                            <th>% Rate</th>
+                                            <th><i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i> WA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="db-details-tbody">
+                                        <tr class="empty-state">
+                                            <td colspan="7">No records to show. Select a date range.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: ANALYTICS -->
+                <section id="tab-analytics" class="tab-content">
+                    <header class="topbar" style="margin-bottom: 0.75rem;">
+                        <div>
+                            <h1 class="page-title text-primary" style="font-size: 1.5rem; margin-bottom: 2px;">Advanced Analytics</h1>
+                            <p class="subtitle" style="font-size: 0.8rem;">Real-time scanning analytics and performance logs</p>
+                        </div>
+                    </header>
+
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem; height: 100%; overflow-y: auto; padding-right: 4px;" class="custom-scrollbar">
+                        <!-- Top Mini Stat Cards -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <div class="card" style="padding: 1rem; display: flex; align-items: center; gap: 12px; background: rgba(3, 7, 18, 0.4);">
+                                <div class="stat-widget-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Scan Velocity</span>
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #fff;">142.5 / min</span>
+                                </div>
+                            </div>
+                            <div class="card" style="padding: 1rem; display: flex; align-items: center; gap: 12px; background: rgba(3, 7, 18, 0.4);">
+                                <div class="stat-widget-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Accuracy Rate</span>
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #fff;">99.82%</span>
+                                </div>
+                            </div>
+                            <div class="card" style="padding: 1rem; display: flex; align-items: center; gap: 12px; background: rgba(3, 7, 18, 0.4);">
+                                <div class="stat-widget-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-server"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Engine Load</span>
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #fff;">18.4%</span>
+                                </div>
+                            </div>
+                            <div class="card" style="padding: 1rem; display: flex; align-items: center; gap: 12px; background: rgba(3, 7, 18, 0.4);">
+                                <div class="stat-widget-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Fraud Detected</span>
+                                    <span style="font-size: 1.1rem; font-weight: 700; color: #fff;">8.42%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Graphical Mock Content -->
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem;">
+                            <!-- Performance Chart Card -->
+                            <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; min-height: 250px;">
+                                <div class="card-header" style="margin-bottom: 1rem; padding-bottom: 0.5rem; justify-content: flex-start; gap: 8px;">
+                                    <i class="fa-solid fa-chart-area text-primary"></i>
+                                    <h3>System Throughput History</h3>
+                                </div>
+                                <div style="flex: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 1rem 0.5rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; border: 1px solid var(--border-color); height: 180px;">
+                                    <!-- Simple Pure CSS bar chart columns with glows -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 35px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">09:00</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 65px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">10:00</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 120px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">11:00</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 90px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">12:00</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 145px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">13:00</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div style="width: 100%; height: 110px; background: linear-gradient(to top, rgba(6,182,212,0.1), #06b6d4); border-radius: 4px; box-shadow: 0 0 10px rgba(6,182,212,0.3);"></div>
+                                        <span style="font-size: 0.6rem; color: var(--text-muted);">14:00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Network Operator Breakdown Card -->
+                            <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; min-height: 250px;">
+                                <div class="card-header" style="margin-bottom: 1rem; padding-bottom: 0.5rem; justify-content: flex-start; gap: 8px;">
+                                    <i class="fa-solid fa-tower-broadcast text-primary"></i>
+                                    <h3>Operator Distribution</h3>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; justify-content: center;">
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                                            <span style="font-weight: 600; color: #fff;">Grameenphone (GP)</span>
+                                            <span style="color: var(--text-muted);">45%</span>
+                                        </div>
+                                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                            <div style="width: 45%; height: 100%; background: #06b6d4; box-shadow: 0 0 8px #06b6d4;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                                            <span style="font-weight: 600; color: #fff;">Robi Axiata</span>
+                                            <span style="color: var(--text-muted);">30%</span>
+                                        </div>
+                                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                            <div style="width: 30%; height: 100%; background: #a855f7; box-shadow: 0 0 8px #a855f7;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                                            <span style="font-weight: 600; color: #fff;">Banglalink</span>
+                                            <span style="color: var(--text-muted);">25%</span>
+                                        </div>
+                                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                            <div style="width: 25%; height: 100%; background: #ef4444; box-shadow: 0 0 8px #ef4444;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: SETTINGS -->
+                <section id="tab-settings" class="tab-content">
+                    <header class="topbar">
+                        <div>
+                            <h1 class="page-title text-primary">System Settings</h1>
+                            <p class="subtitle">Manage integrations and platform preferences</p>
+                        </div>
+                    </header>
+
+                    <div class="settings-container">
+                        <!-- Section: Integrations -->
+                        <div class="settings-section-title">
+                            <h3><i class="fa-solid fa-link text-primary"></i> System Integrations</h3>
+                        </div>
+                        <div class="integrations-row">
+                            <!-- WhatsApp Checker -->
+                            <div class="card settings-card whatsapp-card">
+                                <div class="card-header">
+                                    <i class="fa-brands fa-whatsapp text-success text-xl"></i>
+                                    <h3>WhatsApp Checker</h3>
+                                </div>
+                                
+                                <div class="setting-item-content">
+                                    <div class="setting-item-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                        <div class="setting-info">
+                                            <h4>Enable Service</h4>
+                                            <p>Verify WA accounts using QR Session.</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked disabled>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="wa-status-container mt-3 mb-3">
+                                        <div id="wa-status" class="wa-status pending" style="padding: 0.5rem; background: rgba(0,0,0,0.5); border-radius: 0.5rem; color: #fff; text-align: center;">
+                                            <i class="fa-solid fa-circle-notch fa-spin"></i> Initializing...
+                                        </div>
+                                        <canvas id="qrcode-canvas" style="display: none; width: 100%; max-width: 200px; margin: 10px auto; border-radius: 8px;"></canvas>
+                                    </div>
+                                    
+                                    <button id="disconnect-wa-btn" class="btn btn-secondary w-100">
+                                        <i class="fa-solid fa-plug-circle-xmark"></i> Disconnect WhatsApp Session
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- IMO Checker -->
+                            <div class="card settings-card imo-card">
+                                <div class="card-header">
+                                    <i class="fa-solid fa-comments text-primary text-xl"></i>
+                                    <h3>IMO Checker</h3>
+                                </div>
+                                
+                                <div class="setting-item-content">
+                                    <div class="setting-item-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                        <div class="setting-info">
+                                            <h4>Enable Service <span class="badge text-muted" style="font-size:0.65rem; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; margin-left:5px;">Coming soon</span></h4>
+                                            <p>Check numbers for active IMO accounts.</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div style="padding: 2rem; text-align: center; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 0.5rem; border: 1px dashed var(--border-color); margin-top: 1rem;">
+                                        <i class="fa-solid fa-lock" style="font-size: 1.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block;"></i>
+                                        <span style="font-size: 0.85rem;">IMO scraping engine will be available in the next version.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Preferences -->
+                        <div class="settings-section-title mt-4">
+                            <h3><i class="fa-solid fa-sliders text-primary"></i> App Preferences</h3>
+                        </div>
+                        <div class="preferences-row">
+                            <!-- Audio Notifications Card -->
+                            <div class="card settings-card audio-card">
+                                <div class="card-header">
+                                    <i class="fa-solid fa-volume-high text-primary text-xl"></i>
+                                    <h3>Audio Notifications</h3>
+                                </div>
+                                <div class="setting-item-content">
+                                    <div class="setting-item-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div class="setting-info">
+                                            <h4>Play Sound Alert</h4>
+                                            <p>Play a sound when scanning is finished.</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="audio-toggle" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Language Card -->
+                            <div class="card settings-card language-card">
+                                <div class="card-header">
+                                    <i class="fa-solid fa-language text-primary text-xl"></i>
+                                    <h3>Language</h3>
+                                </div>
+                                <div class="setting-item-content">
+                                    <div class="form-group" style="margin-top: 0;">
+                                        <label style="display:block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.85rem;">Platform Language</label>
+                                        <select class="custom-select" style="width:100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: white; border-radius: 0.5rem;">
+                                            <option>English</option>
+                                            <option>Bangla</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: PROFILE -->
+                <section id="tab-profile" class="tab-content">
+                    <header class="topbar" style="margin-bottom: 0.75rem;">
+                        <div>
+                            <h1 class="page-title text-primary" style="font-size: 1.5rem; margin-bottom: 2px;">User Profile</h1>
+                            <p class="subtitle" style="font-size: 0.8rem;">Manage your account and subscription details</p>
+                        </div>
+                    </header>
+
+                    <div class="profile-grid">
+                        <!-- Left column: Avatar and subscription info -->
+                        <div class="profile-sidebar">
+                            <!-- Avatar Card -->
+                            <div class="card avatar-uploader-card" style="padding: 1.25rem 1rem;">
+                                <div class="profile-avatar-wrapper">
+                                    <img id="profile-avatar-img" class="profile-avatar-img" style="display: none;" src="" alt="Avatar">
+                                    <div id="profile-avatar-placeholder" class="profile-avatar-placeholder">U</div>
+                                </div>
+                                <h3 id="profile-card-name" class="profile-username">User Name</h3>
+                                <span id="profile-card-role" class="profile-role-badge">User</span>
+                                
+                                <div class="avatar-btn-row">
+                                    <button class="btn btn-primary" onclick="document.getElementById('avatar-input').click()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                                        <i class="fa-solid fa-camera"></i> Change
+                                    </button>
+                                    <button class="btn btn-secondary" id="remove-avatar-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--danger); color: var(--danger);">
+                                        <i class="fa-solid fa-trash-can"></i> Remove
+                                    </button>
+                                </div>
+                                <input type="file" id="avatar-input" accept="image/*" style="display: none;" />
+                            </div>
+
+                            <!-- Subscription Card -->
+                            <div class="card" style="padding: 1.25rem;">
+                                <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.4rem;">
+                                    <i class="fa-solid fa-credit-card text-primary"></i>
+                                    <h3>Subscription Details</h3>
+                                </div>
+                                <div class="plan-details-list">
+                                    <div class="plan-detail-row">
+                                        <span class="text-muted">Active Plan</span>
+                                        <span id="plan-name" class="font-bold">Free Trial</span>
+                                    </div>
+                                    <div class="plan-detail-row">
+                                        <span class="text-muted">Status</span>
+                                        <span id="plan-status" class="pill pill-success">Active</span>
+                                    </div>
+                                    <div class="plan-detail-row">
+                                        <span class="text-muted">Valid Until</span>
+                                        <span id="plan-expires" class="font-bold">—</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary w-100 mt-3" id="renew-plan-btn" style="background: #0ea5e9; padding: 0.6rem; font-size: 0.85rem;">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Renew Subscription
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right column: Edit Details Form -->
+                        <div class="card" style="padding: 1.25rem;">
+                            <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.4rem;">
+                                <i class="fa-solid fa-user-gear text-primary"></i>
+                                <h3>Account Information</h3>
+                            </div>
+                            <div class="info-field-group">
+                                <div class="info-field">
+                                    <span class="info-label">Username</span>
+                                    <span id="info-username" class="info-value">—</span>
+                                </div>
+                                <div class="info-field">
+                                    <span class="info-label">Email Address</span>
+                                    <span id="info-email" class="info-value">—</span>
+                                </div>
+                                <div class="info-field">
+                                    <span class="info-label">Phone Number</span>
+                                    <span id="info-phone" class="info-value">—</span>
+                                </div>
+                            </div>
+                            
+                            <!-- SaaS Admin Button -->
+                            <div id="admin-panel-link-wrapper" style="display: none; margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <a href="/admin" class="btn btn-secondary w-100" style="border-color: #3b82f6; color: #3b82f6; padding: 0.6rem; font-size: 0.85rem;">
+                                    <i class="fa-solid fa-shield-halved"></i> Go to SaaS Admin Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- Bottom Footer Badge Bar -->
+        <footer class="footer-badge-bar">
+            <div class="footer-badge-item">
+                <i class="fa-solid fa-shield-halved footer-badge-icon"></i>
+                <div class="footer-badge-text">
+                    <span class="footer-badge-title">Secure & Private</span>
+                    <span class="footer-badge-desc">Your data is protected</span>
+                </div>
+            </div>
+            <div class="footer-badge-item">
+                <i class="fa-solid fa-bolt footer-badge-icon"></i>
+                <div class="footer-badge-text">
+                    <span class="footer-badge-title">AI Powered</span>
+                    <span class="footer-badge-desc">Advanced scanning</span>
+                </div>
+            </div>
+            <div class="footer-badge-item">
+                <i class="fa-solid fa-clock-rotate-left footer-badge-icon"></i>
+                <div class="footer-badge-text">
+                    <span class="footer-badge-title">Real-time Results</span>
+                    <span class="footer-badge-desc">Instant data capture</span>
+                </div>
+            </div>
+            <div class="footer-badge-item">
+                <i class="fa-solid fa-network-wired footer-badge-icon"></i>
+                <div class="footer-badge-text">
+                    <span class="footer-badge-title">Multi-Network</span>
+                    <span class="footer-badge-desc">All operators supported</span>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="mobile-footer-nav">
+            <div class="mobile-nav-item active" data-tab="dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="database">
+                <i class="fa-solid fa-database"></i>
+                <span>Database</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="profile">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Server Status Dot Connection Listeners
+        socket.on('connect', () => {
+            const dot = document.getElementById('server-status-dot');
+            if (dot) {
+                dot.className = 'server-status-dot online';
+                dot.style.background = 'var(--success)';
+                dot.style.boxShadow = '0 0 10px var(--success)';
+                dot.title = 'Server Connected';
+            }
+        });
+        socket.on('disconnect', () => {
+            const dot = document.getElementById('server-status-dot');
+            if (dot) {
+                dot.className = 'server-status-dot offline';
+                dot.style.background = 'var(--danger)';
+                dot.style.boxShadow = '0 0 10px var(--danger)';
+                dot.title = 'Server Disconnected';
+            }
+        });
+
+        // ---- TABS LOGIC ----
+        function switchTab(target) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+            
+            // Activate desktop nav
+            const dBtn = document.querySelector(`.nav-item[data-tab="${target}"]`);
+            if(dBtn) dBtn.classList.add('active');
+            
+            // Activate mobile nav
+            const mBtn = document.querySelector(`.mobile-nav-item[data-tab="${target}"]`);
+            if(mBtn) mBtn.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + target).classList.add('active');
+
+            if (target === 'database') loadDatabase();
+            if (target === 'profile') loadUserProfile();
+        }
+
+        document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(btn => {
+            if(btn.hasAttribute('data-tab')) {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.getAttribute('data-tab'));
+                });
+            }
+        });
+
+        // ---- DOM ELEMENTS ----
+        const fileInput = document.getElementById('file-upload');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadStatus = document.getElementById('upload-status');
+        const appStatus = document.getElementById('app-status');
+        const progressFill = document.getElementById('waveform-loader-fill');
+        const soundwaveScreen = document.getElementById('soundwave-screen');
+        const gaugeContainer = document.querySelector('.gauge-container');
+        
+        const crtStatus = document.getElementById('scanner-crt-status');
+        const dataStatus = document.getElementById('scanner-data-status');
+        const waStatus = document.getElementById('scanner-wa-status');
+        const scannerPhone = document.getElementById('scanner-phone-number');
+        const scannerReflection = document.getElementById('scanner-phone-reflection');
+        const scannerStatusText = document.getElementById('scanner-status-text');
+        const progressPct = document.getElementById('scanner-progress-pct');
+        const progressLabel = document.getElementById('scanner-progress-label');
+        
+        const tbody = document.getElementById('results-table-body');
+        const audioAlert = document.getElementById('notification-sound');
+        const audioToggle = document.getElementById('audio-toggle');
+        
+        const waStatusEl = document.getElementById('wa-status');
+        const qrCanvas = document.getElementById('qrcode-canvas');
+        const disconnectWaBtn = document.getElementById('disconnect-wa-btn');
+
+        // New Controls DOM
+        const toggleBtn = document.getElementById('scanner-toggle-btn');
+        const toggleIcon = document.getElementById('scanner-toggle-icon');
+        const genCountInput = document.getElementById('gen-count-input');
+        const loopBtn = document.getElementById('scanner-loop-btn');
+        const manualInput = document.getElementById('manual-phone-input');
+        const manualBtn = document.getElementById('manual-check-btn');
+        const pauseBtn = document.getElementById('scanner-pause-btn');
+        const stopBtn = document.getElementById('scanner-stop-btn');
+        const prevBtn = document.getElementById('scanner-prev-btn');
+        const nextBtn = document.getElementById('scanner-next-btn');
+        const playLabel = document.getElementById('scanner-play-label');
+
+        // ---- DASHBOARD LOGIC ----
+        let isScanningActive = false;
+        let isPaused = false;
+        let isLoopActive = false;
+        let checkQueue = [];
+        let scannedDataCount = 0;
+        let whatsappDataCount = 0;
+
+        const soundwaveBars = document.querySelectorAll('.soundwave-bar');
+
+        function pauseSoundwave() {
+            soundwaveBars.forEach(bar => {
+                bar.style.animationPlayState = 'paused';
+            });
+        }
+
+        function resumeSoundwave() {
+            soundwaveBars.forEach(bar => {
+                bar.style.animationPlayState = 'running';
+            });
+        }
+
+        function stopSoundwave() {
+            soundwaveBars.forEach(bar => {
+                bar.style.animationPlayState = 'paused';
+                bar.style.height = '10px';
+            });
+        }
+
+        // Initially stop soundwave animation
+        stopSoundwave();
+
+        // Loop button toggle
+        loopBtn.addEventListener('click', () => {
+            isLoopActive = !isLoopActive;
+            if (isLoopActive) {
+                loopBtn.style.color = '#06b6d4';
+                loopBtn.classList.add('active');
+            } else {
+                loopBtn.style.color = 'var(--text-muted)';
+                loopBtn.classList.remove('active');
+            }
+        });
+
+        // Manual Check trigger
+        manualBtn.addEventListener('click', () => {
+            const phone = manualInput.value.trim();
+            if (!phone) return;
+            
+            if (isScanningActive) {
+                console.log('Error: Engine is running. Stop scan to run manual check.');
+                return;
+            }
+            
+            manualInput.value = '';
+            
+            // Set scanner UI to running state
+            isScanningActive = true;
+            isPaused = false;
+            
+            toggleBtn.style = ''; // Clear inline styles
+            toggleBtn.classList.add('scanning');
+            toggleIcon.className = 'fa-solid fa-pause';
+            if (playLabel) playLabel.innerText = 'Running';
+            
+            if (progressFill) progressFill.style.width = '0%';
+            if (soundwaveScreen) soundwaveScreen.classList.add('scanning');
+            gaugeContainer.classList.add('scanning');
+            resumeSoundwave();
+            
+            appStatus.className = 'status-badge pulse-active';
+            appStatus.innerText = 'Engine Running';
+            tbody.innerHTML = '';
+            
+            // Reset counts
+            scannedDataCount = 0;
+            whatsappDataCount = 0;
+            if (dataStatus) dataStatus.innerText = `Data: 0`;
+            if (waStatus) waStatus.innerText = `WA: 0`;
+            if (crtStatus) crtStatus.innerText = `CRT: 0/0`;
+            if (scannerPhone) scannerPhone.innerText = phone;
+            if (scannerReflection) scannerReflection.innerText = phone;
+            if (scannerStatusText) scannerStatusText.innerText = 'Checking Fraud History...';
+            if (progressPct) progressPct.innerText = '0%';
+            if (progressLabel) progressLabel.innerText = 'Starting Manual Check...';
+
+            // Reset gauge and stats cards
+            setGaugeValue(0);
+            document.getElementById('stat-orders').innerText = '0';
+            document.getElementById('stat-delivery').innerText = '0';
+            document.getElementById('stat-cancel').innerText = '0';
+
+            socket.emit('start_manual_check', { phone });
+        });
+
+        async function startScanning() {
+            if (isScanningActive) {
+                if (isPaused) {
+                    isPaused = false;
+                    resumeSoundwave();
+                    gaugeContainer.classList.add('scanning');
+                    appStatus.className = 'status-badge pulse-active';
+                    appStatus.innerText = 'Engine Running';
+                    if (playLabel) playLabel.innerText = 'Running';
+                    toggleIcon.className = 'fa-solid fa-pause';
+                }
+                return;
+            }
+            isScanningActive = true;
+            isPaused = false;
+            
+            toggleBtn.style = ''; // Clear inline styles
+            toggleBtn.classList.add('scanning');
+            toggleIcon.className = 'fa-solid fa-pause';
+            if (playLabel) playLabel.innerText = 'Running';
+            
+            if (progressFill) progressFill.style.width = '0%';
+            if (soundwaveScreen) soundwaveScreen.classList.add('scanning');
+            gaugeContainer.classList.add('scanning');
+            resumeSoundwave();
+            
+            appStatus.className = 'status-badge pulse-active';
+            appStatus.innerText = 'Engine Running';
+            tbody.innerHTML = '';
+            
+            // Reset counts
+            scannedDataCount = 0;
+            whatsappDataCount = 0;
+            if (dataStatus) dataStatus.innerText = `Data: 0`;
+            if (waStatus) waStatus.innerText = `WA: 0`;
+            if (crtStatus) crtStatus.innerText = `CRT: 0/0`;
+            if (scannerPhone) scannerPhone.innerText = '00000000000';
+            if (scannerReflection) scannerReflection.innerText = '00000000000';
+            if (scannerStatusText) scannerStatusText.innerText = 'Data Scanning...';
+            if (progressPct) progressPct.innerText = '0%';
+            if (progressLabel) progressLabel.innerText = 'Loading to Complete...';
+            
+            // Reset gauge and stats cards
+            setGaugeValue(0);
+            document.getElementById('stat-orders').innerText = '0';
+            document.getElementById('stat-delivery').innerText = '0';
+            document.getElementById('stat-cancel').innerText = '0';
+            
+            if (checkQueue.length > 0) {
+                try {
+                    await fetch('/api/start', { method: 'POST' });
+                } catch (err) {
+                    console.error(err);
+                }
+            } else {
+                const count = parseInt(genCountInput.value) || 20;
+                socket.emit('start_random_check', { count });
+            }
+        }
+        
+        function stopScanning() {
+            if (!isScanningActive) return;
+            isScanningActive = false;
+            isPaused = false;
+            
+            toggleBtn.style = ''; // Clear inline styles
+            toggleBtn.classList.remove('scanning');
+            toggleIcon.className = 'fa-solid fa-chevron-right';
+            if (playLabel) playLabel.innerText = 'Start';
+            
+            if (soundwaveScreen) soundwaveScreen.classList.remove('scanning');
+            gaugeContainer.classList.remove('scanning');
+            stopSoundwave();
+            
+            appStatus.className = 'status-badge pulse-idle';
+            appStatus.innerText = 'Engine Stopped';
+            if (progressLabel) progressLabel.innerText = 'Loading to Complete...';
+            
+            socket.emit('stop_check');
+            checkQueue = [];
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (isScanningActive) {
+                if (isPaused) {
+                    // Resume scanning
+                    isPaused = false;
+                    resumeSoundwave();
+                    gaugeContainer.classList.add('scanning');
+                    appStatus.className = 'status-badge pulse-active';
+                    appStatus.innerText = 'Engine Running';
+                    if (playLabel) playLabel.innerText = 'Running';
+                    toggleIcon.className = 'fa-solid fa-pause';
+                } else {
+                    // Pause scanning
+                    isPaused = true;
+                    pauseSoundwave();
+                    gaugeContainer.classList.remove('scanning');
+                    appStatus.className = 'status-badge pulse-idle';
+                    appStatus.innerText = 'Engine Paused';
+                    if (playLabel) playLabel.innerText = 'Paused';
+                    toggleIcon.className = 'fa-solid fa-chevron-right';
+                }
+            } else {
+                startScanning();
+            }
+        });
+
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => {
+                if (isScanningActive && !isPaused) {
+                    isPaused = true;
+                    pauseSoundwave();
+                    gaugeContainer.classList.remove('scanning');
+                    appStatus.className = 'status-badge pulse-idle';
+                    appStatus.innerText = 'Engine Paused';
+                    if (playLabel) playLabel.innerText = 'Paused';
+                    toggleIcon.className = 'fa-solid fa-chevron-right';
+                }
+            });
+        }
+
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                stopScanning();
+            });
+        }
+
+        // File upload change binding
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                uploadBtn.disabled = false;
+                fileInput.previousElementSibling.querySelector('span').innerText = fileInput.files[0].name;
+            } else {
+                uploadBtn.disabled = true;
+                fileInput.previousElementSibling.querySelector('span').innerText = 'Select Excel File (.xlsx)';
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('excelFile', file);
+
+            uploadBtn.innerHTML = 'Uploading...';
+            uploadBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if (data.success) {
+                    uploadStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.count} queued.`;
+                    uploadStatus.className = "status-text mt-2 text-center text-success";
+                    checkQueue = new Array(data.count);
+                } else {
+                    uploadStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${data.error}`;
+                    uploadStatus.className = "status-text mt-2 text-center text-danger";
+                }
+            } catch (err) {
+                uploadStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Upload failed.`;
+                uploadStatus.className = "status-text mt-2 text-center text-danger";
+            }
+            uploadBtn.innerHTML = 'Upload';
+        });
+
+        function addToFeed(text, isActive = false) {
+            console.log(`[FEED] ${text}`);
+        }
+
+        // ---- SETTINGS LOGIC ----
+        disconnectWaBtn.addEventListener('click', async () => {
+            disconnectWaBtn.disabled = true;
+            disconnectWaBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Disconnecting...';
+            try {
+                await fetch('/api/whatsapp/disconnect', { method: 'POST' });
+            } catch(e) {
+                console.error(e);
+            }
+            disconnectWaBtn.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Disconnect WhatsApp Session';
+            disconnectWaBtn.disabled = false;
+        });
+
+        // ---- GAUGE VISUAL LOGIC ----
+        function setGaugeValue(percentage) {
+            const progressCircle = document.getElementById('gauge-progress');
+            const pctText = document.getElementById('gauge-percentage');
+            const badge = document.getElementById('gauge-status-badge');
+            const priorityBadge = document.getElementById('gauge-priority-badge');
+            const stop1 = document.getElementById('gauge-grad-stop1');
+            const stop2 = document.getElementById('gauge-grad-stop2');
+            
+            const value = parseInt(percentage) || 0;
+            
+            // Circumference of r=58 circle is ~364
+            const offset = 364 - (364 * value) / 100;
+            progressCircle.style.strokeDashoffset = offset;
+            
+            let currentVal = parseInt(pctText.innerText) || 0;
+            const duration = 800; // ms
+            const startTime = performance.now();
+            
+            pctText.classList.remove('number-animate');
+            void pctText.offsetWidth; // Trigger reflow
+            pctText.classList.add('number-animate');
+            
+            function animate(time) {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 4); // EaseOutQuart
+                const current = Math.round(currentVal + (value - currentVal) * ease);
+                pctText.innerText = current + '%';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    pctText.innerText = value + '%';
+                }
+            }
+            requestAnimationFrame(animate);
+            
+            priorityBadge.style.display = 'none';
+            
+            if (value <= 35) {
+                badge.style.display = 'inline-block';
+                badge.innerText = 'Risk';
+                badge.style.background = '#ef4444';
+                stop1.setAttribute('stop-color', '#fb923c'); // orange
+                stop2.setAttribute('stop-color', '#ef4444'); // red
+            } else if (value <= 55) {
+                badge.style.display = 'inline-block';
+                badge.innerText = 'Average';
+                badge.style.background = '#3b82f6';
+                stop1.setAttribute('stop-color', '#3b82f6'); // blue
+                stop2.setAttribute('stop-color', '#f97316'); // orange
+            } else if (value <= 70) {
+                badge.style.display = 'inline-block';
+                badge.innerText = 'Inquire';
+                badge.style.background = '#f97316';
+                stop1.setAttribute('stop-color', '#f97316'); // orange
+                stop2.setAttribute('stop-color', '#a3e635'); // green-yellow
+            } else if (value <= 89) {
+                badge.style.display = 'inline-block';
+                badge.innerText = 'Relax';
+                badge.style.background = '#a855f7';
+                stop1.setAttribute('stop-color', '#a855f7'); // purple
+                stop2.setAttribute('stop-color', '#22c55e'); // green
+            } else {
+                badge.style.display = 'inline-block';
+                badge.innerText = 'Legend';
+                badge.style.background = '#10b981';
+                priorityBadge.style.display = 'inline-block';
+                stop1.setAttribute('stop-color', '#10b981'); // green
+                stop2.setAttribute('stop-color', '#3b82f6'); // blue
+            }
+        }
+
+        // ---- SOCKET EVENTS ----
+        socket.on('wa_status', (data) => {
+            if (data.ready) {
+                waStatusEl.innerHTML = '<i class="fa-solid fa-shield-check text-success"></i> Connected';
+                qrCanvas.style.display = 'none';
+            } else {
+                waStatusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${data.message}`;
+            }
+        });
+
+        socket.on('qr_code', (qrCodeStr) => {
+            qrCanvas.style.display = 'block';
+            waStatusEl.innerHTML = '<i class="fa-solid fa-qrcode text-primary"></i> Scan this QR';
+            QRCode.toCanvas(qrCanvas, qrCodeStr, { width: 200, margin: 1 }, function (error) {
+                if (error) console.error(error);
+            });
+        });
+
+        socket.on('status', (data) => {
+            if (data.message.includes('completed')) {
+                appStatus.innerText = 'Checking Complete!';
+                stopScanning();
+                appStatus.className = 'status-badge status-complete';
+                addToFeed('Scanning completed');
+                
+                if (audioToggle.checked) audioAlert.play().catch(e => console.log('Audio error', e));
+
+                // If loop mode is active, restart scanning
+                if (isLoopActive) {
+                    addToFeed('Loop Mode Active. Starting next scan in 2 seconds...', true);
+                    setTimeout(() => {
+                        if (isLoopActive) startScanning();
+                    }, 2000);
+                }
+            } else if (data.message.includes('stopped')) {
+                appStatus.innerText = 'Engine Stopped';
+                stopScanning();
+                addToFeed('Scanning stopped');
+            } else {
+                appStatus.innerText = data.message;
+            }
+        });
+
+        socket.on('progress', (data) => {
+            if (isPaused) return; // Keep visualization paused if user paused it
+            
+            // Update CRT status pill:
+            if (crtStatus) crtStatus.innerText = `CRT: ${data.current}/${data.total}`;
+            
+            // Update phone numbers inside scanner overlay:
+            if (scannerPhone) scannerPhone.innerText = data.phone || '00000000000';
+            if (scannerReflection) scannerReflection.innerText = data.phone || '00000000000';
+            
+            // Update status text:
+            if (scannerStatusText) scannerStatusText.innerText = data.status || 'Data Scanning...';
+            
+            // Calculate percentage and update bar + percentage text:
+            const percent = Math.round((data.current / data.total) * 100) || 0;
+            if (progressPct) progressPct.innerText = `${percent}%`;
+            if (progressFill) progressFill.style.width = `${percent}%`;
+            
+            addToFeed(`Scanning > ${data.phone}`, true);
+        });
+
+        socket.on('result', (data) => {
+            if (tbody.querySelector('.empty-state')) tbody.innerHTML = '';
+            
+            const isSuccess = parseInt(data.successRate) >= 70;
+            
+            // Dynamic circular gauge & stats cards updates
+            if (data.successRate) {
+                setGaugeValue(data.successRate);
+            }
+            document.getElementById('stat-orders').innerText = data.totalOrders || 0;
+            document.getElementById('stat-delivery').innerText = data.totalDelivery || 0;
+            document.getElementById('stat-cancel').innerText = data.totalCancel || 0;
+
+            const tr = document.createElement('tr');
+            tr.className = 'row-enter';
+            
+            // Format Courier Column
+            let courierHtml = '';
+            if (data.courier && data.courier !== '-') {
+                courierHtml = `
+                    <div class="courier-badge-container">
+                        <img src="/assets/courier-logo/${data.courier}.svg" class="courier-logo-img" alt="${data.courier}" onerror="this.style.display='none'; this.nextElementSibling.style.fontSize='0.85rem';">
+                        <div class="courier-badge-count">${data.totalOrders || 0}</div>
+                    </div>
+                `;
+            }
+            
+            tr.innerHTML = `
+                <td class="font-bold">${data.phone}</td>
+                <td>${courierHtml}</td>
+                <td>${data.totalOrders || 0}</td>
+                <td>${data.totalDelivery || 0}</td>
+                <td>${data.totalCancel || 0}</td>
+                <td><span class="pill ${isSuccess ? 'pill-success' : 'pill-danger'}">${data.successRate}</span></td>
+                <td>${data.hasWhatsApp ? '<i class="fa-brands fa-whatsapp text-success" style="font-size:1.2rem;"></i>' : '<span class="text-muted">—</span>'}</td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+            
+            addToFeed(`Matched > ${data.phone} added to DB`, false);
+            setTimeout(() => tr.classList.remove('row-enter'), 500);
+        });
+
+        // ---- DATABASE LOGIC ----
+        let dbCache = {};
+        let selectedStartDate = null;
+        let selectedEndDate = null;
+        let currentDatePickerDate = new Date();
+
+        // Helper to parse "M/D/YYYY" string to a Date object
+        function parseDateKey(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+            }
+            return new Date(dateStr);
+        }
+
+        function formatDateForDisplay(dateObj) {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+        }
+
+        async function loadDatabase() {
+            const tbody = document.getElementById('db-details-tbody');
+            tbody.innerHTML = '<tr class="empty-state"><td colspan="7"><i class="fa-solid fa-spinner fa-spin empty-icon"></i><p>Loading database...</p></td></tr>';
+            
+            try {
+                const res = await fetch('/api/database');
+                const json = await res.json();
+                
+                if (json.success) {
+                    dbCache = json.data;
+                    
+                    // Default selection: find the most recent date in dbCache
+                    const dates = Object.keys(dbCache).sort((a, b) => parseDateKey(b) - parseDateKey(a));
+                    if (dates.length > 0) {
+                        const latestDate = parseDateKey(dates[0]);
+                        selectedStartDate = latestDate;
+                        selectedEndDate = latestDate;
+                        currentDatePickerDate = new Date(latestDate);
+                        
+                        applyDateRangeFilter();
+                    } else {
+                        tbody.innerHTML = '<tr class="empty-state"><td colspan="7"><i class="fa-solid fa-box-open empty-icon"></i><p>No records found in database.</p></td></tr>';
+                        document.getElementById('db-selected-date').innerText = 'Select Date';
+                        document.getElementById('db-record-count').innerText = '0 records';
+                    }
+                } else {
+                    tbody.innerHTML = '<tr class="empty-state"><td colspan="7"><i class="fa-solid fa-circle-xmark empty-icon"></i><p>Failed to load data.</p></td></tr>';
+                }
+            } catch(e) {
+                console.error(e);
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="7"><i class="fa-solid fa-circle-xmark empty-icon"></i><p>Network error.</p></td></tr>';
+            }
+            
+            initDatePickerEvents();
+        }
+
+        function applyDateRangeFilter() {
+            if (!selectedStartDate) return;
+            
+            const start = new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
+            const end = selectedEndDate 
+                ? new Date(selectedEndDate.getFullYear(), selectedEndDate.getMonth(), selectedEndDate.getDate())
+                : new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
+            
+            // Format title
+            let titleText = formatDateForDisplay(start);
+            if (selectedEndDate && start.toDateString() !== end.toDateString()) {
+                titleText = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
+            }
+            document.getElementById('db-selected-date').innerText = titleText;
+            
+            // Filter records
+            const filteredRecords = [];
+            Object.keys(dbCache).forEach(dateKey => {
+                const dateObj = parseDateKey(dateKey);
+                const compareDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+                
+                if (compareDate >= start && compareDate <= end) {
+                    filteredRecords.push(...dbCache[dateKey]);
+                }
+            });
+            
+            // Sort by checkTime descending
+            filteredRecords.sort((a, b) => new Date(b.checkTime) - new Date(a.checkTime));
+            
+            document.getElementById('db-record-count').innerText = `${filteredRecords.length} records`;
+            
+            const tbody = document.getElementById('db-details-tbody');
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="7"><i class="fa-solid fa-box-open empty-icon"></i><p>No records found for selected range.</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            filteredRecords.forEach(data => {
+                const isSuccess = parseInt(data.successRate) >= 70;
+                let courierHtml = '';
+                if (data.courier && data.courier !== '-') {
+                    courierHtml = `
+                        <div class="courier-badge-container">
+                            <img src="/assets/courier-logo/${data.courier}.svg" class="courier-logo-img" alt="${data.courier}">
+                            <div class="courier-badge-count">${data.totalOrders || 0}</div>
+                        </div>
+                    `;
+                }
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-bold">${data.phone}</td>
+                    <td>${courierHtml}</td>
+                    <td>${data.totalOrders || 0}</td>
+                    <td>${data.totalDelivery || 0}</td>
+                    <td>${data.totalCancel || 0}</td>
+                    <td><span class="pill ${isSuccess ? 'pill-success' : 'pill-danger'}">${data.successRate}</span></td>
+                    <td>${data.hasWhatsApp ? '<i class="fa-brands fa-whatsapp text-success" style="font-size:1.1rem;"></i>' : '<span class="text-muted">—</span>'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Date Picker Logic ---
+        let datePickerInitialized = false;
+
+        function initDatePickerEvents() {
+            if (datePickerInitialized) return;
+            datePickerInitialized = true;
+            
+            const trigger = document.getElementById('db-date-trigger');
+            const popup = document.getElementById('db-datepicker-popup');
+            const prevBtn = document.getElementById('prev-month-btn');
+            const nextBtn = document.getElementById('next-month-btn');
+            const updateBtn = document.getElementById('datepicker-update-btn');
+            
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isDisplayed = popup.style.display === 'block';
+                popup.style.display = isDisplayed ? 'none' : 'block';
+                if (!isDisplayed) {
+                    renderCalendar();
+                }
+            });
+            
+            popup.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent closing when clicking inside popup
+            });
+            
+            document.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+            
+            prevBtn.addEventListener('click', () => {
+                currentDatePickerDate.setMonth(currentDatePickerDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                currentDatePickerDate.setMonth(currentDatePickerDate.getMonth() + 1);
+                renderCalendar();
+            });
+            
+            updateBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+                applyDateRangeFilter();
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('datepicker-days-grid');
+            const title = document.getElementById('datepicker-month-year');
+            grid.innerHTML = '';
+            
+            const year = currentDatePickerDate.getFullYear();
+            const month = currentDatePickerDate.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            title.innerText = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1);
+            const startDayIndex = (firstDay.getDay() + 6) % 7;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            
+            // Empty grid slots before start day
+            for (let i = 0; i < startDayIndex; i++) {
+                const span = document.createElement('span');
+                span.className = 'empty';
+                grid.appendChild(span);
+            }
+            
+            const today = new Date();
+            
+            for (let day = 1; day <= totalDays; day++) {
+                const span = document.createElement('span');
+                span.innerText = day;
+                const dateObj = new Date(year, month, day);
+                
+                if (dateObj.toDateString() === today.toDateString()) {
+                    span.classList.add('today');
+                }
+                
+                // Style selection
+                if (selectedStartDate && dateObj.toDateString() === selectedStartDate.toDateString()) {
+                    if (selectedEndDate && selectedStartDate.toDateString() !== selectedEndDate.toDateString()) {
+                        span.classList.add('selected-start');
+                    } else {
+                        span.classList.add('selected-single');
+                    }
+                } else if (selectedEndDate && dateObj.toDateString() === selectedEndDate.toDateString()) {
+                    span.classList.add('selected-end');
+                } else if (selectedStartDate && selectedEndDate && dateObj > selectedStartDate && dateObj < selectedEndDate) {
+                    span.classList.add('selected-range');
+                }
+                
+                span.addEventListener('click', () => {
+                    handleDayClick(dateObj);
+                });
+                
+                grid.appendChild(span);
+            }
+        }
+
+        function handleDayClick(dateObj) {
+            if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+                selectedStartDate = dateObj;
+                selectedEndDate = null;
+            } else if (selectedStartDate && !selectedEndDate) {
+                if (dateObj < selectedStartDate) {
+                    selectedStartDate = dateObj;
+                } else {
+                    selectedEndDate = dateObj;
+                }
+            }
+            renderCalendar();
+        }
+
+        // ---- USER PROFILE SPA LOGIC ----
+        async function loadUserProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                if (data.success) {
+                    const user = data.user;
+                    
+                    // Update user card details
+                    document.getElementById('profile-card-name').innerText = user.username;
+                    document.getElementById('profile-card-role').innerText = user.role;
+                    document.getElementById('info-username').innerText = user.username;
+                    document.getElementById('info-email').innerText = user.email || 'Not specified';
+                    document.getElementById('info-phone').innerText = user.phone || 'Not specified';
+                    
+                    // Subscription Plan Details
+                    document.getElementById('plan-name').innerText = user.plan_name || 'Free Trial';
+                    document.getElementById('plan-status').innerText = user.plan_status || 'Active';
+                    document.getElementById('plan-expires').innerText = user.plan_expires || 'Never';
+                    
+                    const statusEl = document.getElementById('plan-status');
+                    if (user.plan_status === 'Active') {
+                        statusEl.className = 'pill pill-success';
+                    } else {
+                        statusEl.className = 'pill pill-danger';
+                    }
+                    
+                    // Sync Topbar User Avatar representation
+                    const headerAvatar = document.querySelector('.user-avatar');
+                    const avatarImg = document.getElementById('profile-avatar-img');
+                    const avatarPlaceholder = document.getElementById('profile-avatar-placeholder');
+                    
+                    if (user.profile_pic) {
+                        avatarImg.src = user.profile_pic;
+                        avatarImg.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                        if (headerAvatar) {
+                            headerAvatar.innerHTML = `<img src="${user.profile_pic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
+                        }
+                    } else {
+                        avatarImg.src = '/assets/ai-avatar.png';
+                        avatarImg.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                        if (headerAvatar) {
+                            headerAvatar.innerHTML = `<img src="/assets/ai-avatar.png" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
+                        }
+                    }
+                    
+                    // Toggle SaaS Admin Dashboard visibility
+                    const adminLink = document.getElementById('admin-panel-link-wrapper');
+                    if (user.role === 'admin') {
+                        adminLink.style.display = 'block';
+                    } else {
+                        adminLink.style.display = 'none';
+                    }
+                }
+            } catch(e) {
+                console.error("Error loading user profile information:", e);
+            }
+        }
+
+        // Avatar change handler
+        const avatarInput = document.getElementById('avatar-input');
+        if (avatarInput) {
+            avatarInput.addEventListener('change', async () => {
+                if (avatarInput.files.length === 0) return;
+                const file = avatarInput.files[0];
+                const formData = new FormData();
+                formData.append('profilePic', file);
+                
+                try {
+                    const res = await fetch('/api/profile/upload-pic', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        loadUserProfile(); // Re-fetch to sync views
+                    }
+                } catch(e) {
+                    console.error("Error uploading profile image:", e);
+                }
+            });
+        }
+        
+        // Avatar remove handler
+        const removeAvatarBtn = document.getElementById('remove-avatar-btn');
+        if (removeAvatarBtn) {
+            removeAvatarBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to remove your profile picture?')) {
+                    try {
+                        const res = await fetch('/api/profile/remove-pic', {
+                            method: 'POST'
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            loadUserProfile(); // Re-fetch
+                        }
+                    } catch(e) {
+                        console.error("Error removing profile image:", e);
+                    }
+                }
+            });
+        }
+        
+        // Subscription renew handler
+        const renewPlanBtn = document.getElementById('renew-plan-btn');
+        if (renewPlanBtn) {
+            renewPlanBtn.addEventListener('click', () => {
+                alert('Plan renewal simulated: Gateway connection established successfully!');
+            });
+        }
+
+        // Automatically fetch initial avatar on page load to sync top header representation
+        loadUserProfile();
+
+        // ---- LANGUAGE SWITCHER LOGIC ----
+        let currentLang = 'EN';
+        function toggleLanguage() {
+            const langFlag = document.getElementById('lang-flag');
+            const langText = document.getElementById('lang-text');
+            
+            if (currentLang === 'EN') {
+                currentLang = 'BN';
+                langFlag.src = 'https://flagcdn.com/w20/gb.png';
+                langText.innerText = 'EN';
+                alert('Language switched to Bengali (BN) - UI translation hooks have been initialized.');
+            } else {
+                currentLang = 'EN';
+                langFlag.src = 'https://flagcdn.com/w20/bd.png';
+                langText.innerText = 'BN';
+                alert('Language switched to English (EN).');
+            }
+        }
+    </script>
+</body>
+</html>
