@@ -5,3 +5,4 @@ chrome-headless-shell/
 database.sqlite-wal
 database.sqlite-shm
 uploads/
+node_modules
