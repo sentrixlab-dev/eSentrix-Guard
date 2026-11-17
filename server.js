@@ -502,7 +502,7 @@ io.on('connection', (socket) => {
 io.on('qr_code', (qr) => { latestQrCode = qr; });
 
 // Start Server
-const PORT = 3000;
+const PORT = process.env.PORT || 3050;
 (async () => {
     try {
         await initDB();
