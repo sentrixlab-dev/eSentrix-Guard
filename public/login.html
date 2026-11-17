@@ -16,8 +16,11 @@
         
         <!-- Logo & Title -->
         <div class="text-center space-y-2.5">
-            <div class="w-16 h-16 rounded-[22px] overflow-hidden shadow-lg shadow-purple-950/10 border-2 border-purple-200/80 mx-auto flex items-center justify-center bg-black transition-transform duration-300 hover:scale-105">
-                <img src="/assets/logo.png" alt="eSentrix Guard" class="w-full h-full object-cover">
+            <div class="relative w-16 h-16 mx-auto group">
+                <div class="absolute -inset-1 rounded-[22px] bg-gradient-to-tr from-purple-600/30 via-fuchsia-500/20 to-blue-500/20 blur-xs opacity-80"></div>
+                <div class="relative w-16 h-16 rounded-[20px] overflow-hidden shadow-[0_4px_16px_rgba(109,40,217,0.2)] border border-purple-200/60 flex items-center justify-center bg-[#0d071a] transition-all duration-300 group-hover:scale-105">
+                    <img src="/assets/logo.png" alt="eSentrix Guard" class="w-full h-full object-cover">
+                </div>
             </div>
             <div>
                 <h1 class="text-xl font-black text-purple-900 font-['Outfit'] tracking-tight">eSentrix Guard</h1>
