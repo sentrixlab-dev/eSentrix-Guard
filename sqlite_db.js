@@ -28,6 +28,9 @@ db.serialize(() => {
     addColumn('plan_status', 'TEXT DEFAULT \'Active\'');
     addColumn('plan_expires', 'TEXT');
     addColumn('profile_pic', 'TEXT');
+    addColumn('full_name', 'TEXT');
+    addColumn('status', 'TEXT DEFAULT \'active\'');
+    addColumn('plain_password', 'TEXT');
 
     // Scans Table
     db.run(`CREATE TABLE IF NOT EXISTS scans (

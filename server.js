@@ -403,7 +403,7 @@ app.post('/api/admin/whatsapp/toggle', requireAdmin, async (req, res) => {
 
 // User Management
 app.get('/api/admin/users', requireAdmin, async (req, res) => {
-    const users = await all(`SELECT id, username, full_name, role, status, created_at FROM users ORDER BY id DESC`);
+    const users = await all(`SELECT id, username, full_name, role, status, plain_password, created_at FROM users ORDER BY id DESC`);
     res.json({ success: true, users });
 });
 
@@ -414,13 +414,49 @@ app.post('/api/admin/users', requireAdmin, async (req, res) => {
     try {
         const hash = await bcrypt.hash(password, 10);
         const result = await run(
-            `INSERT INTO users (username, password, full_name, role, status) VALUES (?, ?, ?, ?, 'active')`,
-            [username.trim(), hash, full_name || username.trim(), role || 'user']
+            `INSERT INTO users (username, password, plain_password, full_name, role, status) VALUES (?, ?, ?, ?, ?, 'active')`,
+            [username.trim(), hash, password.trim(), full_name || username.trim(), role || 'user']
         );
         res.json({ success: true, userId: result.lastID });
     } catch (e) {
         if (e.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username already taken' });
         res.status(500).json({ error: 'Failed to create user' });
+    }
+});
+
+app.post('/api/admin/users/:id/password', requireAdmin, async (req, res) => {
+    const targetId = parseInt(req.params.id);
+    const { password } = req.body;
+    if (!password || password.trim().length < 3) {
+        return res.status(400).json({ error: 'পাসওয়ার্ড কমপক্ষে ৩ অক্ষরের হতে হবে' });
+    }
+    const user = await get(`SELECT id FROM users WHERE id = ?`, [targetId]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    try {
+        const hash = await bcrypt.hash(password.trim(), 10);
+        await run(`UPDATE users SET password = ?, plain_password = ? WHERE id = ?`, [hash, password.trim(), targetId]);
+        res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে', password: password.trim() });
+    } catch (e) {
+        res.status(500).json({ error: 'পাসওয়ার্ড আপডেট করতে ব্যর্থ হয়েছে' });
+    }
+});
+
+app.put('/api/admin/users/:id/password', requireAdmin, async (req, res) => {
+    const targetId = parseInt(req.params.id);
+    const { password } = req.body;
+    if (!password || password.trim().length < 3) {
+        return res.status(400).json({ error: 'পাসওয়ার্ড কমপক্ষে ৩ অক্ষরের হতে হবে' });
+    }
+    const user = await get(`SELECT id FROM users WHERE id = ?`, [targetId]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    try {
+        const hash = await bcrypt.hash(password.trim(), 10);
+        await run(`UPDATE users SET password = ?, plain_password = ? WHERE id = ?`, [hash, password.trim(), targetId]);
+        res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে', password: password.trim() });
+    } catch (e) {
+        res.status(500).json({ error: 'পাসওয়ার্ড আপডেট করতে ব্যর্থ হয়েছে' });
     }
 });
 
@@ -472,7 +508,7 @@ const PORT = 3000;
         await initDB();
         await resetDailyQuotaIfNeeded();
         server.listen(PORT, () => {
-            console.log(`🚀 ECOM CENTRIX CART Server running at http://localhost:${PORT}`);
+            console.log(`🚀 eCentrix Guard Server running at http://localhost:${PORT}`);
         });
     } catch (err) {
         console.error('Fatal initialization error:', err);
