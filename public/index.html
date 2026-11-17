@@ -14,26 +14,32 @@
 <body class="notranslate bg-[#f3f0fa] min-h-screen text-slate-800 flex items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8 font-['Hind_Siliguri']" translate="no">
 
     <!-- Main Constrained Dashboard Container -->
-    <div id="main-app-container" class="w-full max-w-[1240px] bg-white rounded-none sm:rounded-[26px] shadow-2xl shadow-purple-950/5 border-0 sm:border border-purple-100/70 overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0 md:h-[880px] md:max-h-[92vh] transition-all">
+    <div id="main-app-container" class="w-full max-w-[1100px] bg-white rounded-none sm:rounded-[26px] shadow-2xl shadow-purple-950/5 border-0 sm:border border-purple-100/70 overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0 md:h-[840px] md:max-h-[94vh] transition-all duration-300">
         
         <!-- ======================================================== -->
-        <!-- DESKTOP LEFT SIDEBAR (Collapsible, Hidden on mobile) -->
+        <!-- DESKTOP LEFT SIDEBAR (Default: Collapsed, Hidden on mobile) -->
         <!-- ======================================================== -->
-        <aside id="app-sidebar" class="hidden md:flex w-[225px] bg-white border-r border-purple-100/80 shadow-[4px_0_15px_-3px_rgba(109,40,217,0.03)] p-4 flex-col justify-between shrink-0 transition-all duration-300 relative z-30">
-            <div class="space-y-5">
-                <!-- Branding Header & Collapse Toggle -->
-                <div class="flex items-center justify-between pb-2 border-b border-purple-50/80">
-                    <div class="flex items-center gap-2.5 overflow-hidden">
-                        <div class="w-9 h-9 rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center text-base shadow-xs shrink-0">
-                            <i class="fa-solid fa-cart-shopping"></i>
+        <aside id="app-sidebar" class="hidden md:flex w-[72px] px-2.5 py-4 bg-white border-r border-purple-100/80 shadow-[4px_0_15px_-3px_rgba(109,40,217,0.03)] flex-col justify-between shrink-0 transition-all duration-300 relative z-30">
+            <div class="space-y-4">
+                <!-- Branding Header & Collapse Toggle (No overlap!) -->
+                <div class="flex flex-col items-center pb-2 border-b border-purple-50/80">
+                    <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center gap-2.5 overflow-hidden">
+                            <div onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center text-base shadow-xs shrink-0 cursor-pointer hover:bg-purple-200 transition" title="ক্লিক করে সাইডবার খুলুন">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </div>
+                            <div class="sidebar-text-block hidden overflow-hidden transition-all duration-300">
+                                <h2 class="text-[13px] font-extrabold text-purple-900 tracking-tight leading-tight truncate font-['Outfit']">Ecom Centrix Cart</h2>
+                                <p class="text-[10px] font-medium text-slate-400 truncate">Fraud Intelligence</p>
+                            </div>
                         </div>
-                        <div class="sidebar-text-block overflow-hidden transition-all duration-300">
-                            <h2 class="text-[13px] font-extrabold text-purple-900 tracking-tight leading-tight truncate font-['Outfit']">Ecom Centrix Cart</h2>
-                            <p class="text-[10px] font-medium text-slate-400 truncate">Fraud Intelligence</p>
-                        </div>
+                        <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="hidden w-6 h-6 rounded-lg text-slate-400 hover:text-purple-700 hover:bg-purple-50 transition flex items-center justify-center shrink-0" title="সাইডবার কলাপ্স / প্রসারিত করুন">
+                            <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-left text-[10px]"></i>
+                        </button>
                     </div>
-                    <button onclick="toggleSidebar()" class="w-6 h-6 rounded-lg text-slate-400 hover:text-purple-700 hover:bg-purple-50 transition flex items-center justify-center shrink-0" title="সাইডবার কলাপ্স / প্রসারিত করুন">
-                        <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-left text-[10px]"></i>
+                    <!-- Dedicated clean expand toggle when collapsed (No overlapping!) -->
+                    <button id="sidebar-expand-pill" onclick="toggleSidebar()" class="w-full mt-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-[10px] font-bold flex items-center justify-center transition shadow-2xs" title="সাইডবার বড় করুন">
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
                     </button>
                 </div>
 
@@ -41,36 +47,36 @@
                 <nav class="space-y-1.5 text-xs font-semibold">
                     <button onclick="switchUserTab('checker')" id="nav-btn-checker" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-700 shadow-2xs transition text-left" title="ফ্রড চেকার">
                         <i class="fa-solid fa-house-chimney text-purple-700 w-4 text-center shrink-0"></i>
-                        <span class="sidebar-label truncate">ফ্রড চেকার</span>
+                        <span class="sidebar-label hidden truncate">ফ্রড চেকার</span>
                     </button>
 
                     <button onclick="switchUserTab('report')" id="nav-btn-report" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition text-left" title="রিপোর্ট ও হিস্ট্রি">
                         <i class="fa-solid fa-chart-simple text-slate-400 w-4 text-center shrink-0"></i>
-                        <span class="sidebar-label truncate">রিপোর্ট ও হিস্ট্রি</span>
+                        <span class="sidebar-label hidden truncate">রিপোর্ট ও হিস্ট্রি</span>
                     </button>
 
                     <button onclick="switchUserTab('analytics')" id="nav-btn-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition text-left" title="অ্যানালিটিক্স">
                         <i class="fa-solid fa-chart-line text-slate-400 w-4 text-center shrink-0"></i>
-                        <span class="sidebar-label truncate">অ্যানালিটিক্স</span>
+                        <span class="sidebar-label hidden truncate">অ্যানালিটিক্স</span>
                     </button>
 
                     <button onclick="switchUserTab('blacklist')" id="nav-btn-blacklist" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition text-left" title="ব্ল্যাকলিস্ট">
                         <i class="fa-solid fa-user-slash text-slate-400 w-4 text-center shrink-0"></i>
-                        <span class="sidebar-label truncate">ব্ল্যাকলিস্ট</span>
+                        <span class="sidebar-label hidden truncate">ব্ল্যাকলিস্ট</span>
                     </button>
 
                     <button onclick="switchUserTab('settings')" id="nav-btn-settings" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition text-left" title="সেটিংস">
                         <i class="fa-solid fa-gear text-slate-400 w-4 text-center shrink-0"></i>
-                        <span class="sidebar-label truncate">সেটিংস</span>
+                        <span class="sidebar-label hidden truncate">সেটিংস</span>
                     </button>
                 </nav>
             </div>
 
             <!-- Sidebar Bottom: Logout -->
-            <div class="pt-4 border-t border-purple-50/80">
+            <div class="pt-3 border-t border-purple-50/80">
                 <button onclick="handleUserLogout()" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-semibold text-xs transition text-left" title="লগআউট">
                     <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center shrink-0"></i>
-                    <span class="sidebar-label truncate">লগআউট</span>
+                    <span class="sidebar-label hidden truncate">লগআউট</span>
                 </button>
             </div>
         </aside>
@@ -168,260 +174,268 @@
                 <!-- VIEW 1: FRAUD CHECKER (Primary Workspace) -->
                 <div id="view-checker" class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 items-start">
                     
-                    <!-- SECTION 1: Title, Search, Metrics (Order 1) -->
-                    <div class="col-span-1 lg:col-span-8 space-y-4 md:space-y-5 order-1">
+                    <!-- LEFT COLUMN WRAPPER (Desktop: flex-col col-span-8, Mobile: contents) -->
+                    <div class="contents lg:flex lg:flex-col lg:col-span-8 lg:space-y-4">
                         
-                        <div>
-                            <h1 class="text-xl md:text-2xl font-black text-purple-900 tracking-tight">কুরিয়ার ফ্রড চেকার</h1>
-                            <p class="text-xs text-slate-500 mt-0.5 font-medium">কাস্টমারের মোবাইল নম্বর দিয়ে অর্ডার, ডেলিভারি ও ফ্রড রিস্ক দ্রুত যাচাই করুন।</p>
-                        </div>
-
-                        <!-- Capsule Search Bar -->
-                        <div class="relative bg-white rounded-full p-1.5 border border-purple-200/80 shadow-xs flex items-center">
-                            <div class="pl-4 pr-2 text-purple-600">
-                                <i class="fa-solid fa-phone text-sm"></i>
-                            </div>
-                            <input type="text" id="phone-input" placeholder="কাস্টমারের মোবাইল নম্বর লিখুন (যেমন: 01XXXXXXXXX)" value="01911167991"
-                                   class="flex-1 bg-transparent py-2 px-1 text-xs md:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none">
-                            <button onclick="performCheck()" id="search-btn" class="px-5 md:px-6 py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-full font-bold text-xs shadow-sm transition flex items-center gap-2 shrink-0">
-                                <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
-                                <span>যাচাই করুন</span>
-                            </button>
-                        </div>
-
-                        <!-- 4 Summary Metrics Cards -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-                            <div class="bg-white p-3 rounded-2xl border border-purple-100/70 shadow-2xs flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-box text-sm"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">মোট অর্ডার</div>
-                                    <div id="stat-total-orders" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">20</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-2xl border border-emerald-100/70 shadow-2xs flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-truck text-sm"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">সফল ডেলিভারি</div>
-                                    <div id="stat-delivered" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">17</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-2xl border border-rose-100/70 shadow-2xs flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-circle-xmark text-sm"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">বাতিল / রিটার্ন</div>
-                                    <div id="stat-cancelled" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">3</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-2xl border border-blue-100/70 shadow-2xs flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-percent text-sm"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">ডেলিভারি রেট</div>
-                                    <div id="stat-rate" class="text-lg sm:text-xl font-black text-blue-700 font-['Outfit'] leading-tight">85.00%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: Courier Breakdown Table (Bottom-Left on Desktop, #3 on Mobile) -->
-                    <div class="col-span-1 lg:col-span-8 order-3 lg:order-3">
-                        <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
-                            <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2 text-slate-800">
-                                <div class="text-blue-600 text-sm">
-                                    <i class="fa-solid fa-truck-fast"></i>
-                                </div>
-                                <h3 class="text-xs md:text-sm font-bold text-slate-900">কুরিয়ার ভিত্তিক বিস্তারিত তথ্য</h3>
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs min-w-[500px]">
-                                    <thead>
-                                        <tr class="bg-slate-50/60 text-slate-500 font-bold text-[11px] border-b border-slate-100">
-                                            <th class="py-2.5 px-3">কুরিয়ার কোম্পানি</th>
-                                            <th class="py-2.5 px-2 text-center">স্ট্যাটাস</th>
-                                            <th class="py-2.5 px-2 text-center">অর্ডার</th>
-                                            <th class="py-2.5 px-2 text-center">ডেলিভারি</th>
-                                            <th class="py-2.5 px-2 text-center">বাতিল</th>
-                                            <th class="py-2.5 px-2 text-center">WhatsApp</th>
-                                            <th class="py-2.5 px-3 text-right">ডেলিভারি রেট</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="courier-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                                        <tr>
-                                            <td colspan="7" class="py-6 text-center text-slate-400">ডাটা লোড হচ্ছে...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 2: Verified Results Card (Top-Right on Desktop, #2 on Mobile immediately under search/metrics) -->
-                    <div class="col-span-1 lg:col-span-4 order-2 lg:order-2">
-                        
-                        <!-- CARD: Verified results -->
-                        <div class="bg-white rounded-2xl border border-purple-100/70 p-5 shadow-2xs flex flex-col items-center">
+                        <!-- SECTION 1: Title, Search, Metrics (Order 1 on mobile) -->
+                        <div class="space-y-4 md:space-y-5 order-1">
                             
-                            <div class="w-full flex items-center justify-start gap-2 pb-3 border-b border-slate-100">
-                                <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
-                                    <i class="fa-solid fa-shield-halved"></i>
-                                </div>
-                                <h3 class="text-sm font-bold text-slate-900">Verified results</h3>
+                            <div>
+                                <h1 class="text-xl md:text-2xl font-black text-purple-900 tracking-tight">কুরিয়ার ফ্রড চেকার</h1>
+                                <p class="text-xs text-slate-500 mt-0.5 font-medium">কাস্টমারের মোবাইল নম্বর দিয়ে অর্ডার, ডেলিভারি ও ফ্রড রিস্ক দ্রুত যাচাই করুন।</p>
                             </div>
 
-                            <!-- Smooth Gradient Progress Gauge -->
-                            <div class="relative w-44 h-44 flex items-center justify-center my-3">
-                                <svg class="w-44 h-44 -rotate-90" viewBox="0 0 160 160">
-                                    <defs>
-                                        <linearGradient id="trustGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#84cc16" />
-                                            <stop offset="100%" stop-color="#10b981" />
-                                        </linearGradient>
-                                    </defs>
-                                    <circle cx="80" cy="80" r="64" stroke="#f1f5f9" stroke-width="12" fill="transparent" />
-                                    <circle id="gauge-circle" cx="80" cy="80" r="64" stroke="url(#trustGradient)" stroke-width="12" 
-                                            stroke-dasharray="402" stroke-dashoffset="402" stroke-linecap="round" fill="transparent" 
-                                            class="transition-all duration-1000 ease-out" />
-                                </svg>
-                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                    <span id="gauge-percent" class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-['Outfit']">0%</span>
-                                    <span class="text-xs font-semibold text-slate-500 mt-0.5">Credibility</span>
+                            <!-- Capsule Search Bar -->
+                            <div class="relative bg-white rounded-full p-1.5 border border-purple-200/80 shadow-xs flex items-center">
+                                <div class="pl-4 pr-2 text-purple-600">
+                                    <i class="fa-solid fa-phone text-sm"></i>
                                 </div>
-                            </div>
-
-                            <!-- Phone Number Row (Shown when checked) -->
-                            <div id="result-phone-row" class="hidden text-xs font-bold text-rose-500 my-1 font-mono flex items-center gap-1.5">
-                                <span>নম্বর:</span>
-                                <span id="display-phone">01XXXXXXXXX</span>
-                                <button onclick="copyPhone()" title="কপি করুন" class="text-slate-400 hover:text-purple-600 transition ml-0.5">
-                                    <i class="fa-regular fa-copy text-xs"></i>
+                                <input type="text" id="phone-input" placeholder="কাস্টমারের মোবাইল নম্বর লিখুন (যেমন: 01XXXXXXXXX)" value="01911167991"
+                                       class="flex-1 bg-transparent py-2 px-1 text-xs md:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none">
+                                <button onclick="performCheck()" id="search-btn" class="px-5 md:px-6 py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-full font-bold text-xs shadow-sm transition flex items-center gap-2 shrink-0">
+                                    <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
+                                    <span>যাচাই করুন</span>
                                 </button>
                             </div>
 
-                            <!-- Dynamic Risk Verdict Card (Initial state: Hidden) -->
-                            <div id="risk-result-card" class="hidden w-full mt-2 p-3.5 rounded-2xl border border-emerald-300 bg-emerald-50/40 text-center transition-all duration-300">
-                                <!-- Pill -->
-                                <div id="risk-pill-badge" class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-700 border border-emerald-200 shadow-2xs">
-                                    <i id="risk-pill-icon" class="fa-regular fa-circle-check text-[9px]"></i>
-                                    <span id="risk-pill-text">Low Risk (100%)</span>
-                                </div>
-                                
-                                <!-- Headline with User Icon -->
-                                <div id="risk-headline-wrapper" class="text-base font-extrabold text-emerald-800 flex items-center justify-center gap-1.5 mt-2">
-                                    <i id="risk-headline-icon" class="fa-solid fa-user-plus text-sm"></i>
-                                    <span id="risk-headline-text">ঝুঁকিমুক্ত</span>
+                            <!-- 4 Summary Metrics Cards -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                                <div class="bg-white p-3 rounded-2xl border border-purple-100/70 shadow-2xs flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-box text-sm"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">মোট অর্ডার</div>
+                                        <div id="stat-total-orders" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">20</div>
+                                    </div>
                                 </div>
 
-                                <!-- Subtext -->
-                                <p id="risk-subtext" class="text-xs text-emerald-800/80 mt-1 font-medium leading-relaxed">
-                                    এই কাস্টমারকে নিশ্চিন্তে পার্সেল দিতে পারেন।
-                                </p>
+                                <div class="bg-white p-3 rounded-2xl border border-emerald-100/70 shadow-2xs flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-truck text-sm"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">সফল ডেলিভারি</div>
+                                        <div id="stat-delivered" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">17</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-2xl border border-rose-100/70 shadow-2xs flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-circle-xmark text-sm"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">বাতিল / রিটার্ন</div>
+                                        <div id="stat-cancelled" class="text-lg sm:text-xl font-black text-slate-900 font-['Outfit'] leading-tight">3</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-2xl border border-blue-100/70 shadow-2xs flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-percent text-sm"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">ডেলিভারি রেট</div>
+                                        <div id="stat-rate" class="text-lg sm:text-xl font-black text-blue-700 font-['Outfit'] leading-tight">85.00%</div>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
+
+                        <!-- SECTION 3: Courier Breakdown Table (Directly below metrics on Desktop, #3 on Mobile) -->
+                        <div class="order-3">
+                            <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
+                                <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2 text-slate-800">
+                                    <div class="text-blue-600 text-sm">
+                                        <i class="fa-solid fa-truck-fast"></i>
+                                    </div>
+                                    <h3 class="text-xs md:text-sm font-bold text-slate-900">কুরিয়ার ভিত্তিক বিস্তারিত তথ্য</h3>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs min-w-[500px]">
+                                        <thead>
+                                            <tr class="bg-slate-50/60 text-slate-500 font-bold text-[11px] border-b border-slate-100">
+                                                <th class="py-2.5 px-3">কুরিয়ার কোম্পানি</th>
+                                                <th class="py-2.5 px-2 text-center">স্ট্যাটাস</th>
+                                                <th class="py-2.5 px-2 text-center">অর্ডার</th>
+                                                <th class="py-2.5 px-2 text-center">ডেলিভারি</th>
+                                                <th class="py-2.5 px-2 text-center">বাতিল</th>
+                                                <th class="py-2.5 px-2 text-center">WhatsApp</th>
+                                                <th class="py-2.5 px-3 text-right">ডেলিভারি রেট</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="courier-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                            <tr>
+                                                <td colspan="7" class="py-6 text-center text-slate-400">ডাটা লোড হচ্ছে...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- SECTION 4: Data Scraping & Harvest Control (Bottom-Right on Desktop, #4 on Mobile) -->
-                    <div class="col-span-1 lg:col-span-4 order-4 lg:order-4">
-                        <div class="bg-white rounded-2xl border border-purple-100/70 p-5 shadow-2xs space-y-3.5">
-                            <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-                                <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-sm shrink-0">
-                                    <i class="fa-solid fa-layer-group"></i>
+                    <!-- RIGHT COLUMN WRAPPER (Desktop: flex-col col-span-4, Mobile: contents) -->
+                    <div class="contents lg:flex lg:flex-col lg:col-span-4 lg:space-y-3.5">
+                        
+                        <!-- SECTION 2: Verified Results Card (#2 on Mobile, Top-Right on Desktop) -->
+                        <div class="order-2">
+                            <div class="bg-white rounded-2xl border border-purple-100/70 p-4 shadow-2xs flex flex-col items-center">
+                                
+                                <div class="w-full flex items-center justify-start gap-2 pb-2.5 border-b border-slate-100">
+                                    <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                    </div>
+                                    <h3 class="text-xs sm:text-sm font-bold text-slate-900">Verified results</h3>
                                 </div>
-                                <h3 class="text-xs font-black text-slate-900 font-['Outfit']">Data Scraping & Harvest Control</h3>
+
+                                <!-- Smooth Gradient Progress Gauge (Optimized height) -->
+                                <div class="relative w-36 h-36 flex items-center justify-center my-2">
+                                    <svg class="w-36 h-36 -rotate-90" viewBox="0 0 160 160">
+                                        <defs>
+                                            <linearGradient id="trustGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#84cc16" />
+                                                <stop offset="100%" stop-color="#10b981" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle cx="80" cy="80" r="64" stroke="#f1f5f9" stroke-width="12" fill="transparent" />
+                                        <circle id="gauge-circle" cx="80" cy="80" r="64" stroke="url(#trustGradient)" stroke-width="12" 
+                                                stroke-dasharray="402" stroke-dashoffset="402" stroke-linecap="round" fill="transparent" 
+                                                class="transition-all duration-1000 ease-out" />
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                        <span id="gauge-percent" class="text-3xl font-extrabold text-slate-900 font-['Outfit']">0%</span>
+                                        <span class="text-[11px] font-semibold text-slate-500 mt-0.5">Credibility</span>
+                                    </div>
+                                </div>
+
+                                <!-- Phone Number Row (Shown when checked) -->
+                                <div id="result-phone-row" class="hidden text-xs font-bold text-rose-500 my-1 font-mono flex items-center gap-1.5">
+                                    <span>নম্বর:</span>
+                                    <span id="display-phone">01XXXXXXXXX</span>
+                                    <button onclick="copyPhone()" title="কপি করুন" class="text-slate-400 hover:text-purple-600 transition ml-0.5">
+                                        <i class="fa-regular fa-copy text-xs"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Dynamic Risk Verdict Card (Initial state: Hidden) -->
+                                <div id="risk-result-card" class="hidden w-full mt-1.5 p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/40 text-center transition-all duration-300">
+                                    <!-- Pill -->
+                                    <div id="risk-pill-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-700 border border-emerald-200 shadow-2xs">
+                                        <i id="risk-pill-icon" class="fa-regular fa-circle-check text-[9px]"></i>
+                                        <span id="risk-pill-text">Low Risk (100%)</span>
+                                    </div>
+                                    
+                                    <!-- Headline with User Icon -->
+                                    <div id="risk-headline-wrapper" class="text-sm sm:text-base font-extrabold text-emerald-800 flex items-center justify-center gap-1.5 mt-1.5">
+                                        <i id="risk-headline-icon" class="fa-solid fa-user-plus text-sm"></i>
+                                        <span id="risk-headline-text">ঝুঁকিমুক্ত</span>
+                                    </div>
+
+                                    <!-- Subtext -->
+                                    <p id="risk-subtext" class="text-[11px] text-emerald-800/80 mt-0.5 font-medium leading-relaxed">
+                                        এই কাস্টমারকে নিশ্চিন্তে পার্সেল দিতে পারেন।
+                                    </p>
+                                </div>
+
                             </div>
+                        </div>
 
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Number of target checks</label>
-                                <input type="number" id="harvest-target-input" value="100" min="5" max="2000"
-                                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/30 text-slate-800">
-                            </div>
+                        <!-- SECTION 4: Data Scraping & Harvest Control (#4 on Mobile, Bottom-Right on Desktop) -->
+                        <div class="order-4">
+                            <div class="bg-white rounded-2xl border border-purple-100/70 p-4 shadow-2xs space-y-2.5">
+                                <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                    <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs shrink-0">
+                                        <i class="fa-solid fa-layer-group"></i>
+                                    </div>
+                                    <h3 class="text-xs font-black text-slate-900 font-['Outfit']">Data Scraping & Harvest Control</h3>
+                                </div>
 
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Operator filter</label>
-                                <select id="harvest-operator-select" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/30 text-slate-800 cursor-pointer">
-                                    <option value="all">All operators (GP, BL, Robi, Airtel)</option>
-                                    <option value="gp">Grameenphone (017, 013)</option>
-                                    <option value="bl">Banglalink (019, 014)</option>
-                                    <option value="robi">Robi / Airtel (018, 016)</option>
-                                    <option value="teletalk">Teletalk (015)</option>
-                                </select>
-                            </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Number of target checks</label>
+                                    <input type="number" id="harvest-target-input" value="100" min="5" max="2000"
+                                           class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/30 text-slate-800">
+                                </div>
 
-                            <button onclick="handleHarvestToggle()" id="harvest-action-btn" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-play text-[10px]"></i>
-                                <span>Start scraping</span>
-                            </button>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Operator filter</label>
+                                    <select id="harvest-operator-select" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/30 text-slate-800 cursor-pointer">
+                                        <option value="all">All operators (GP, BL, Robi, Airtel)</option>
+                                        <option value="gp">Grameenphone (017, 013)</option>
+                                        <option value="bl">Banglalink (019, 014)</option>
+                                        <option value="robi">Robi / Airtel (018, 016)</option>
+                                        <option value="teletalk">Teletalk (015)</option>
+                                    </select>
+                                </div>
 
-                            <!-- Live Progress Box (Shown when active or running) -->
-                            <div id="harvest-live-box" class="hidden bg-purple-50/40 border border-purple-100/90 rounded-2xl p-3.5 space-y-2.5">
-                                <div class="flex items-center justify-between">
-                                    <span id="harvest-badge-status" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        <span>Scraping in progress...</span>
-                                    </span>
-                                    <div class="text-right">
-                                        <div class="text-[9px] font-bold text-slate-400 uppercase">Progress</div>
-                                        <div id="harvest-pct-text" class="text-base font-black text-purple-700 font-['Outfit'] leading-tight">0%</div>
-                                        <div id="harvest-fraction-text" class="text-[10px] text-slate-400 font-semibold font-['Outfit']">0 / 100</div>
+                                <button onclick="handleHarvestToggle()" id="harvest-action-btn" class="w-full py-2 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-play text-[10px]"></i>
+                                    <span>Start scraping</span>
+                                </button>
+
+                                <!-- Live Progress Box (Shown when active or running) -->
+                                <div id="harvest-live-box" class="hidden bg-purple-50/40 border border-purple-100/90 rounded-xl p-2.5 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span id="harvest-badge-status" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span>Scraping in progress...</span>
+                                        </span>
+                                        <div class="text-right">
+                                            <div class="text-[9px] font-bold text-slate-400 uppercase">Progress</div>
+                                            <div id="harvest-pct-text" class="text-sm font-black text-purple-700 font-['Outfit'] leading-tight">0%</div>
+                                            <div id="harvest-fraction-text" class="text-[9px] text-slate-400 font-semibold font-['Outfit']">0 / 100</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span class="text-[10px] text-slate-500 font-medium">Checking number:</span>
+                                        <div class="bg-purple-100/60 px-2 py-0.5 rounded-lg border border-purple-200/60 text-purple-900 font-bold font-mono text-[10px] flex items-center gap-1">
+                                            <span id="harvest-active-phone">01XXXXXXXXX</span>
+                                            <button onclick="copyHarvestPhone()" title="কপি করুন" class="text-purple-600 hover:text-purple-900 ml-0.5">
+                                                <i class="fa-regular fa-copy text-[10px]"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div class="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                                        <div id="harvest-fill-bar" class="bg-purple-700 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+
+                                    <!-- 4 Bottom Counters -->
+                                    <div class="grid grid-cols-4 gap-1 pt-0.5">
+                                        <div class="bg-white p-1 rounded-lg border border-slate-100 text-center">
+                                            <div class="text-[8px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
+                                                <i class="fa-solid fa-rotate text-[7px] text-purple-500"></i> Checked
+                                            </div>
+                                            <div id="harvest-count-checked" class="text-[11px] font-black text-slate-800 font-['Outfit'] mt-0.5">0</div>
+                                        </div>
+
+                                        <div class="bg-white p-1 rounded-lg border border-slate-100 text-center">
+                                            <div class="text-[8px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
+                                                <i class="fa-solid fa-circle-check text-[7px] text-emerald-500"></i> Valid
+                                            </div>
+                                            <div id="harvest-count-valid" class="text-[11px] font-black text-emerald-600 font-['Outfit'] mt-0.5">0</div>
+                                        </div>
+
+                                        <div class="bg-white p-1 rounded-lg border border-slate-100 text-center">
+                                            <div class="text-[8px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
+                                                <i class="fa-solid fa-circle-xmark text-[7px] text-rose-500"></i> Fraud
+                                            </div>
+                                            <div id="harvest-count-fraud" class="text-[11px] font-black text-rose-600 font-['Outfit'] mt-0.5">0</div>
+                                        </div>
+
+                                        <div class="bg-white p-1 rounded-lg border border-slate-100 text-center">
+                                            <div class="text-[8px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
+                                                <i class="fa-regular fa-clock text-[7px] text-slate-400"></i> Rem.
+                                            </div>
+                                            <div id="harvest-count-remaining" class="text-[11px] font-black text-slate-700 font-['Outfit'] mt-0.5">100</div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-2 text-xs">
-                                    <span class="text-[11px] text-slate-500 font-medium">Checking number:</span>
-                                    <div class="bg-purple-100/60 px-2.5 py-0.5 rounded-lg border border-purple-200/60 text-purple-900 font-bold font-mono text-[11px] flex items-center gap-1">
-                                        <span id="harvest-active-phone">01XXXXXXXXX</span>
-                                        <button onclick="copyHarvestPhone()" title="কপি করুন" class="text-purple-600 hover:text-purple-900 ml-0.5">
-                                            <i class="fa-regular fa-copy text-[10px]"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Progress Bar -->
-                                <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
-                                    <div id="harvest-fill-bar" class="bg-purple-700 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
-
-                                <!-- 4 Bottom Counters -->
-                                <div class="grid grid-cols-4 gap-1.5 pt-1">
-                                    <div class="bg-white p-1.5 rounded-xl border border-slate-100 text-center">
-                                        <div class="text-[9px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
-                                            <i class="fa-solid fa-rotate text-[8px] text-purple-500"></i> Checked
-                                        </div>
-                                        <div id="harvest-count-checked" class="text-xs font-black text-slate-800 font-['Outfit'] mt-0.5">0</div>
-                                    </div>
-
-                                    <div class="bg-white p-1.5 rounded-xl border border-slate-100 text-center">
-                                        <div class="text-[9px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
-                                            <i class="fa-solid fa-circle-check text-[8px] text-emerald-500"></i> Valid
-                                        </div>
-                                        <div id="harvest-count-valid" class="text-xs font-black text-emerald-600 font-['Outfit'] mt-0.5">0</div>
-                                    </div>
-
-                                    <div class="bg-white p-1.5 rounded-xl border border-slate-100 text-center">
-                                        <div class="text-[9px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
-                                            <i class="fa-solid fa-circle-xmark text-[8px] text-rose-500"></i> Fraud
-                                        </div>
-                                        <div id="harvest-count-fraud" class="text-xs font-black text-rose-600 font-['Outfit'] mt-0.5">0</div>
-                                    </div>
-
-                                    <div class="bg-white p-1.5 rounded-xl border border-slate-100 text-center">
-                                        <div class="text-[9px] text-slate-400 font-medium flex items-center justify-center gap-0.5">
-                                            <i class="fa-regular fa-clock text-[8px] text-slate-400"></i> Rem.
-                                        </div>
-                                        <div id="harvest-count-remaining" class="text-xs font-black text-slate-700 font-['Outfit'] mt-0.5">100</div>
-                                    </div>
-                                </div>
                             </div>
 
                         </div>

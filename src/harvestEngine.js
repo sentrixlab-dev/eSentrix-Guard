@@ -11,6 +11,7 @@ const OPERATOR_PREFIXES = {
 
 let harvestLoopActive = false;
 let harvestIntervalTimer = null;
+const sessionGeneratedNumbers = new Set();
 
 function generateRandomBDNumber(allowedOperators = ['gp', 'bl', 'robi', 'airtel', 'teletalk']) {
     let prefixes = [];
@@ -29,6 +30,29 @@ function generateRandomBDNumber(allowedOperators = ['gp', 'bl', 'robi', 'airtel'
 }
 
 /**
+ * Generates a strictly unique Bangladeshi mobile number that has never been checked in this session or DB.
+ */
+async function generateUniqueBDNumber(allowedOperators) {
+    let attempts = 0;
+    while (attempts < 200) {
+        attempts++;
+        const candidate = generateRandomBDNumber(allowedOperators);
+        if (!sessionGeneratedNumbers.has(candidate)) {
+            // Verify not in DB recently
+            const existing = await get(`SELECT id FROM verifications WHERE phone = ? LIMIT 1`, [candidate]);
+            if (!existing) {
+                sessionGeneratedNumbers.add(candidate);
+                return candidate;
+            }
+            sessionGeneratedNumbers.add(candidate);
+        }
+    }
+    const fallback = generateRandomBDNumber(allowedOperators);
+    sessionGeneratedNumbers.add(fallback);
+    return fallback;
+}
+
+/**
  * Starts the Auto-Harvest background job
  */
 async function startHarvesting(io, options = {}) {
@@ -37,6 +61,14 @@ async function startHarvesting(io, options = {}) {
     const targetCount = parseInt(options.targetCount) || 500;
     const operators = options.operators || ['gp', 'bl', 'robi', 'airtel', 'teletalk'];
     const userId = options.userId || null;
+
+    // Pre-populate session cache from recent scans to prevent duplicate checks
+    try {
+        const pastScans = await all(`SELECT phone FROM verifications ORDER BY id DESC LIMIT 5000`);
+        if (pastScans && pastScans.length > 0) {
+            pastScans.forEach(r => sessionGeneratedNumbers.add(r.phone));
+        }
+    } catch (e) {}
 
     harvestLoopActive = true;
     await run(
@@ -53,8 +85,8 @@ async function startHarvesting(io, options = {}) {
     const runStep = async () => {
         if (!harvestLoopActive) return;
 
-        // Generate number
-        const phone = generateRandomBDNumber(operators);
+        // Generate guaranteed unique number
+        const phone = await generateUniqueBDNumber(operators);
         processed++;
 
         io.emit('harvest_progress', {

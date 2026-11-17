@@ -69,21 +69,38 @@ function switchUserTab(tab) {
 // ==========================================
 function toggleSidebar() {
     const sidebar = document.getElementById('app-sidebar');
-    const icon = document.getElementById('sidebar-toggle-icon');
+    const container = document.getElementById('main-app-container');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const expandPill = document.getElementById('sidebar-expand-pill');
+    const toggleIcon = document.getElementById('sidebar-toggle-icon');
     if (!sidebar) return;
 
-    const isCurrentlyCollapsed = sidebar.classList.contains('w-[74px]');
+    const isCurrentlyCollapsed = sidebar.classList.contains('w-[72px]') || sidebar.classList.contains('w-[74px]');
 
     if (isCurrentlyCollapsed) {
-        sidebar.classList.remove('w-[74px]', 'px-2.5');
+        // Expand
+        sidebar.classList.remove('w-[72px]', 'w-[74px]', 'px-2.5');
         sidebar.classList.add('w-[225px]', 'p-4');
+        if (container) {
+            container.classList.remove('max-w-[1100px]');
+            container.classList.add('max-w-[1240px]');
+        }
         document.querySelectorAll('.sidebar-text-block, .sidebar-label').forEach(el => el.classList.remove('hidden'));
-        if (icon) icon.className = 'fa-solid fa-chevron-left text-[10px]';
+        if (toggleBtn) toggleBtn.classList.remove('hidden');
+        if (expandPill) expandPill.classList.add('hidden');
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-chevron-left text-[10px]';
     } else {
+        // Collapse
         sidebar.classList.remove('w-[225px]', 'p-4');
-        sidebar.classList.add('w-[74px]', 'px-2.5', 'py-4');
+        sidebar.classList.add('w-[72px]', 'px-2.5', 'py-4');
+        if (container) {
+            container.classList.remove('max-w-[1240px]');
+            container.classList.add('max-w-[1100px]');
+        }
         document.querySelectorAll('.sidebar-text-block, .sidebar-label').forEach(el => el.classList.add('hidden'));
-        if (icon) icon.className = 'fa-solid fa-chevron-right text-[10px]';
+        if (toggleBtn) toggleBtn.classList.add('hidden');
+        if (expandPill) expandPill.classList.remove('hidden');
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-chevron-right text-[10px]';
     }
 }
 
@@ -275,20 +292,20 @@ function renderDashboard(data) {
             gradient.innerHTML = `<stop offset="0%" stop-color="#84cc16" /><stop offset="100%" stop-color="#10b981" />`;
         }
         if (riskCard) {
-            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-emerald-300 bg-emerald-50/40 text-center transition-all duration-300';
+            riskCard.className = 'w-full mt-1.5 p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/40 text-center transition-all duration-300';
         }
-        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-700 border border-emerald-200 shadow-2xs';
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-700 border border-emerald-200 shadow-2xs';
         if (pillIcon) pillIcon.className = 'fa-regular fa-circle-check text-[9px]';
         if (pillText) pillText.innerText = `Low Risk (${rate}%)`;
 
         if (headlineIcon) headlineIcon.className = 'fa-solid fa-user-plus text-sm text-emerald-700';
         if (headlineText) {
             headlineText.innerText = 'ঝুঁকিমুক্ত';
-            headlineText.className = 'text-base font-extrabold text-emerald-800';
+            headlineText.className = 'text-sm sm:text-base font-extrabold text-emerald-800';
         }
         if (subtext) {
             subtext.innerText = 'এই কাস্টমারকে নিশ্চিন্তে পার্সেল দিতে পারেন।';
-            subtext.className = 'text-xs text-emerald-800/80 mt-1 font-medium leading-relaxed';
+            subtext.className = 'text-[11px] text-emerald-800/80 mt-0.5 font-medium leading-relaxed';
         }
     } 
     // TIER 2: Medium Risk (নিম্ন ঝুঁকি)
@@ -297,20 +314,20 @@ function renderDashboard(data) {
             gradient.innerHTML = `<stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#d97706" />`;
         }
         if (riskCard) {
-            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-amber-300 bg-amber-50/40 text-center transition-all duration-300';
+            riskCard.className = 'w-full mt-1.5 p-2.5 rounded-xl border border-amber-300 bg-amber-50/40 text-center transition-all duration-300';
         }
-        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-amber-700 border border-amber-200 shadow-2xs';
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-amber-700 border border-amber-200 shadow-2xs';
         if (pillIcon) pillIcon.className = 'fa-regular fa-circle-check text-[9px]';
         if (pillText) pillText.innerText = `Low Risk (${rate}%)`;
 
         if (headlineIcon) headlineIcon.className = 'fa-solid fa-user-check text-sm text-amber-700';
         if (headlineText) {
             headlineText.innerText = 'নিম্ন ঝুঁকি';
-            headlineText.className = 'text-base font-extrabold text-amber-800';
+            headlineText.className = 'text-sm sm:text-base font-extrabold text-amber-800';
         }
         if (subtext) {
             subtext.innerText = 'এই কাস্টমারের ডেলিভারি রেট ভালো।';
-            subtext.className = 'text-xs text-amber-800/80 mt-1 font-medium leading-relaxed';
+            subtext.className = 'text-[11px] text-amber-800/80 mt-0.5 font-medium leading-relaxed';
         }
     } 
     // TIER 3: High Risk (উচ্চ ঝুঁকি)
@@ -319,20 +336,20 @@ function renderDashboard(data) {
             gradient.innerHTML = `<stop offset="0%" stop-color="#fb7185" /><stop offset="100%" stop-color="#e11d48" />`;
         }
         if (riskCard) {
-            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-rose-300 bg-rose-50/40 text-center transition-all duration-300';
+            riskCard.className = 'w-full mt-1.5 p-2.5 rounded-xl border border-rose-300 bg-rose-50/40 text-center transition-all duration-300';
         }
-        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-rose-700 border border-rose-200 shadow-2xs';
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-rose-700 border border-rose-200 shadow-2xs';
         if (pillIcon) pillIcon.className = 'fa-solid fa-triangle-exclamation text-[9px]';
         if (pillText) pillText.innerText = `High Risk (${rate}%)`;
 
         if (headlineIcon) headlineIcon.className = 'fa-solid fa-triangle-exclamation text-sm text-rose-600';
         if (headlineText) {
             headlineText.innerText = 'উচ্চ ঝুঁকি';
-            headlineText.className = 'text-base font-extrabold text-rose-700';
+            headlineText.className = 'text-sm sm:text-base font-extrabold text-rose-700';
         }
         if (subtext) {
             subtext.innerText = 'কাস্টমারের পার্সেল রিটার্নের হার অস্বাভাবিক বেশি। অগ্রিম চার্জ ছাড়া অর্ডার ঝুঁকিপূর্ণ।';
-            subtext.className = 'text-xs text-rose-700/80 mt-1 font-medium leading-relaxed';
+            subtext.className = 'text-[11px] text-rose-700/80 mt-0.5 font-medium leading-relaxed';
         }
     }
 
