@@ -1,11 +1,43 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const path = require('path');
+const fs = require('fs');
 
 puppeteer.use(StealthPlugin());
 
 let browserInstance = null;
 let pageEliteMart = null;
 let pageFraudCheckerLink = null;
+
+async function getBrowser() {
+    if (!browserInstance) {
+        const isWin = process.platform === 'win32';
+        const chromePath = isWin
+            ? path.join(__dirname, 'chrome-headless-shell', 'win64-146.0.7680.31', 'chrome-headless-shell-win64', 'chrome-headless-shell.exe')
+            : '/usr/bin/chromium-browser';
+
+        const launchOptions = {
+            headless: 'new',
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process'
+            ]
+        };
+
+        if (fs.existsSync(chromePath)) {
+            launchOptions.executablePath = chromePath;
+        }
+
+        browserInstance = await puppeteer.launch(launchOptions);
+    }
+    return browserInstance;
+}
 
 async function getOptimizedPage() {
     const browser = await getBrowser();
