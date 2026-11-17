@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" class="notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>লগইন - Ecom Centrix Cart</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -9,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-[#f3f0fa] min-h-screen text-slate-800 flex items-center justify-center p-4 font-['Hind_Siliguri']">
+<body class="notranslate bg-[#f3f0fa] min-h-screen text-slate-800 flex items-center justify-center p-4 font-['Hind_Siliguri']" translate="no">
 
     <div class="w-full max-w-[420px] bg-white rounded-3xl p-7 md:p-8 shadow-xl shadow-purple-950/5 border border-purple-100/70 space-y-6">
         
@@ -76,8 +77,11 @@
                 }).then(r => r.json());
 
                 if (res.success && res.user) {
-                    // Always direct to the User Front-end SPA
-                    window.location.href = '/';
+                    if (res.user.role === 'admin') {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/';
+                    }
                 } else {
                     errBox.innerText = res.error || 'ভুল ইউজারনেম বা পাসওয়ার্ড!';
                     errBox.classList.remove('hidden');

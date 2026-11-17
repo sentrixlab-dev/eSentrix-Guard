@@ -15,7 +15,11 @@ let harvestIntervalTimer = null;
 function generateRandomBDNumber(allowedOperators = ['gp', 'bl', 'robi', 'airtel', 'teletalk']) {
     let prefixes = [];
     allowedOperators.forEach(op => {
-        if (OPERATOR_PREFIXES[op]) prefixes.push(...OPERATOR_PREFIXES[op]);
+        if (OPERATOR_PREFIXES[op]) {
+            prefixes.push(...OPERATOR_PREFIXES[op]);
+        } else if (typeof op === 'string' && op.startsWith('01')) {
+            prefixes.push(op);
+        }
     });
     if (prefixes.length === 0) prefixes = ['017', '019', '018', '016', '013', '014', '015'];
 

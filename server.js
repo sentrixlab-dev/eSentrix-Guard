@@ -439,20 +439,20 @@ app.delete('/api/admin/users/:id', requireAdmin, async (req, res) => {
     res.json({ success: true });
 });
 
-// Automated Bulk Harvester / Scraper Controls (Available for authenticated users)
-app.post('/api/harvest/start', requireAuth, async (req, res) => {
+// Automated Bulk Harvester / Scraper Controls
+app.post('/api/harvest/start', async (req, res) => {
     const { targetCount, operators } = req.body;
     const userId = req.session && req.session.user ? req.session.user.id : null;
     const result = await startHarvesting(io, { targetCount, operators, userId });
     res.json(result);
 });
 
-app.post('/api/harvest/stop', requireAuth, async (req, res) => {
+app.post('/api/harvest/stop', async (req, res) => {
     const result = await stopHarvesting(io);
     res.json(result);
 });
 
-app.get('/api/harvest/status', requireAuth, async (req, res) => {
+app.get('/api/harvest/status', async (req, res) => {
     const status = await getHarvestStatus();
     res.json({ success: true, status });
 });

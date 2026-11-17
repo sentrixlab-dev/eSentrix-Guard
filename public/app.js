@@ -400,10 +400,10 @@ async function handleHarvestToggle() {
     if (!isHarvestingRunning) {
         const targetCount = parseInt(document.getElementById('harvest-target-input').value) || 100;
         const operator = document.getElementById('harvest-operator-select').value;
-        const operators = operator === 'all' ? ['017', '013', '019', '014', '018', '016', '015'] : [operator];
+        const operators = operator === 'all' ? ['gp', 'bl', 'robi', 'airtel', 'teletalk'] : [operator];
 
         btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> <span>শুরু হচ্ছে...</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> <span>Starting...</span>`;
 
         try {
             const res = await fetch('/api/harvest/start', {
@@ -420,9 +420,13 @@ async function handleHarvestToggle() {
                 document.getElementById('harvest-fraction-text').innerText = `0 / ${targetCount}`;
                 document.getElementById('harvest-count-remaining').innerText = targetCount;
             } else {
-                alert(res.error || 'স্ক্র্যাপিং শুরু করতে ব্যর্থ হয়েছে');
+                btn.className = 'w-full py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2';
+                btn.innerHTML = `<i class="fa-solid fa-play text-[10px]"></i> <span>Start scraping</span>`;
+                alert(res.error || res.message || 'স্ক্র্যাপিং শুরু করতে ব্যর্থ হয়েছে');
             }
         } catch (e) {
+            btn.className = 'w-full py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2';
+            btn.innerHTML = `<i class="fa-solid fa-play text-[10px]"></i> <span>Start scraping</span>`;
             alert('সার্ভার সংযোগ সমস্যা');
         } finally {
             btn.disabled = false;
