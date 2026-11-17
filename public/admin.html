@@ -49,8 +49,8 @@
 
             <!-- User Menu & Logout -->
             <div class="flex items-center gap-3">
-                <a href="/" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-purple-700 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/80">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> ফ্রন্টএন্ড চেকার
+                <a href="/" class="text-xs font-semibold text-slate-600 hover:text-purple-700 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/80 transition">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> ফ্রন্টএন্ড চেকার
                 </a>
                 <div class="h-6 w-px bg-slate-200"></div>
                 
@@ -65,6 +65,25 @@
                 </div>
             </div>
 
+        </div>
+        
+        <!-- Mobile Horizontal Tab Bar (Visible on mobile screens) -->
+        <div class="flex md:hidden overflow-x-auto gap-2 pt-2.5 pb-1 border-t border-purple-50 text-xs font-bold">
+            <button onclick="switchTab('history')" id="mobile-tab-btn-history" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-purple-700 text-white shadow-2xs">
+                <i class="fa-solid fa-database mr-1"></i> ডাটাবেজ
+            </button>
+            <button onclick="switchTab('keys')" id="mobile-tab-btn-keys" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600">
+                <i class="fa-solid fa-key mr-1"></i> এপিআই কী
+            </button>
+            <button onclick="switchTab('whatsapp')" id="mobile-tab-btn-whatsapp" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600">
+                <i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp
+            </button>
+            <button onclick="switchTab('scraper')" id="mobile-tab-btn-scraper" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600">
+                <i class="fa-solid fa-robot mr-1"></i> স্ক্র্যাপিং
+            </button>
+            <button onclick="switchTab('users')" id="mobile-tab-btn-users" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600">
+                <i class="fa-solid fa-users mr-1"></i> ইউজার
+            </button>
         </div>
     </header>
 
@@ -126,8 +145,8 @@
 
             <!-- Fixed-Height Scrollable Table Container -->
             <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
-                <div class="max-h-[460px] overflow-y-auto">
-                    <table class="w-full text-left text-xs">
+                <div class="max-h-[460px] overflow-y-auto overflow-x-auto">
+                    <table class="w-full text-left text-xs min-w-[760px]">
                         <thead class="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
                             <tr class="text-slate-500 font-bold text-[11px]">
                                 <th class="py-3 px-4">টাইপ / অর্ডার</th>
@@ -405,12 +424,16 @@
                 if (sec) sec.classList.add('hidden');
                 const btn = document.getElementById(`tab-btn-${t}`);
                 if (btn) btn.className = 'px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900';
+                const mBtn = document.getElementById(`mobile-tab-btn-${t}`);
+                if (mBtn) mBtn.className = 'px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600';
             });
 
             const targetSec = document.getElementById(`tab-${tab}`);
             if (targetSec) targetSec.classList.remove('hidden');
             const targetBtn = document.getElementById(`tab-btn-${tab}`);
             if (targetBtn) targetBtn.className = 'px-4 py-2 rounded-lg transition bg-white text-purple-900 shadow-2xs font-bold';
+            const targetMBtn = document.getElementById(`mobile-tab-btn-${tab}`);
+            if (targetMBtn) targetMBtn.className = 'px-3 py-1.5 rounded-lg whitespace-nowrap bg-purple-700 text-white shadow-2xs font-bold';
 
             if (tab === 'history') loadHistory();
             if (tab === 'keys') loadApiKeys();
