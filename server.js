@@ -508,7 +508,7 @@ const PORT = 3000;
         await initDB();
         await resetDailyQuotaIfNeeded();
         server.listen(PORT, () => {
-            console.log(`🚀 eCentrix Guard Server running at http://localhost:${PORT}`);
+            console.log(`🚀 eSentrix Guard Server running at http://localhost:${PORT}`);
         });
     } catch (err) {
         console.error('Fatal initialization error:', err);

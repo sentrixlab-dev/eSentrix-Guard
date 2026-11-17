@@ -1,4 +1,4 @@
-// eCentrix Guard - Client SPA Controller
+// eSentrix Guard - Client SPA Controller
 const socket = (typeof io !== 'undefined') ? io() : null;
 
 const COURIER_META = {
