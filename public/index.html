@@ -3,213 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Guard AI - ই-কমার্স কাস্টমার ভেরিফিকেশন</title>
+    <title>Ecom Centrix Cart - Courier Fraud Checker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-[#f0f4f8] min-h-screen text-slate-800 flex items-center justify-center p-3 md:p-6 lg:p-8">
+<body class="bg-[#f3f0fa] min-h-screen text-slate-800 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8 font-['Hind_Siliguri']">
 
-    <div class="w-full max-w-[1180px] bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden">
+    <!-- Main Constrained Dashboard Container -->
+    <div class="w-full max-w-[1240px] bg-white rounded-[26px] shadow-2xl shadow-purple-950/5 border border-purple-100/70 overflow-hidden flex flex-col md:flex-row min-h-[680px]">
         
-        <!-- Main Container Card -->
-        <div class="p-6 md:p-8">
-            
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
-                <!-- Left Column: Branding, Gauge & Risk Box -->
-                <div class="lg:col-span-4 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100 pb-6 lg:pb-0 lg:pr-8">
-                    
-                    <div>
-                        <!-- Header / Logo -->
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shadow-sm">
-                                    <i class="fa-solid fa-shield-halved text-lg"></i>
-                                </div>
-                                <h1 class="text-lg font-black tracking-wider text-slate-900 font-['Outfit']">STORE GUARD AI</h1>
-                            </div>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Active Shield
-                            </span>
-                        </div>
-
-                        <!-- Gauge Visual Section -->
-                        <div class="flex flex-col items-center justify-center py-4">
-                            <div class="relative w-52 h-52 flex items-center justify-center">
-                                <svg class="w-52 h-52 -rotate-90" viewBox="0 0 160 160">
-                                    <circle cx="80" cy="80" r="66" stroke="#f1f5f9" stroke-width="12" fill="transparent" />
-                                    <circle id="gauge-progress" cx="80" cy="80" r="66" stroke="#10b981" stroke-width="12" 
-                                            stroke-dasharray="415" stroke-dashoffset="62" stroke-linecap="round" fill="transparent" 
-                                            class="transition-all duration-1000 ease-out" />
-                                </svg>
-                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                    <span id="gauge-percent" class="text-4xl font-extrabold text-slate-900 font-['Outfit']">85%</span>
-                                    <span class="text-xs font-semibold text-slate-500 mt-0.5">গড় রেটিং</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                                <span>নম্বর:</span>
-                                <span id="display-phone" class="font-bold text-slate-800 font-mono">01911167991</span>
-                                <button onclick="copyPhone()" title="কপি করুন" class="text-slate-400 hover:text-teal-600 transition">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
+        <!-- ======================================================== -->
+        <!-- LEFT SIDEBAR -->
+        <!-- ======================================================== -->
+        <aside class="w-full md:w-[220px] lg:w-[230px] bg-white border-r border-purple-50/80 p-5 flex flex-col justify-between shrink-0">
+            <div class="space-y-6">
+                <!-- Branding Header -->
+                <div class="flex items-center gap-2.5 pb-2">
+                    <div class="w-9 h-9 rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center text-base shadow-xs shrink-0">
+                        <i class="fa-solid fa-cart-shopping"></i>
                     </div>
-
-                    <!-- Risk Evaluation Card -->
-                    <div id="risk-box" class="mt-6 p-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 transition-all duration-300">
-                        <div class="flex items-start gap-3">
-                            <div id="risk-icon-wrapper" class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                                <i id="risk-icon" class="fa-solid fa-user-check text-base"></i>
-                            </div>
-                            <div>
-                                <h4 id="risk-title" class="font-bold text-sm text-emerald-900">নিম্ন ঝুঁকি (Low Risk - ৮৫%)</h4>
-                                <p id="risk-desc" class="text-xs text-emerald-800/80 mt-1 leading-relaxed">
-                                    এই কাস্টমারের পার্সেল রিসিভ করার রেকর্ড অত্যন্ত চমৎকার। ক্যাশ অন ডেলিভারিতে নির্বিঘ্নে অর্ডার কনফার্ম করতে পারেন।
-                                </p>
-                            </div>
-                        </div>
+                    <div class="overflow-hidden">
+                        <h2 class="text-[13px] font-extrabold text-purple-900 tracking-tight leading-tight truncate font-['Outfit']">Ecom Centrix Cart</h2>
+                        <p class="text-[10px] font-medium text-slate-400 truncate">Courier Fraud Checker</p>
                     </div>
-
                 </div>
 
-                <!-- Right Column: Search Bar, Stats Grid & Courier Table -->
-                <div class="lg:col-span-8 flex flex-col justify-between space-y-6">
-                    
-                    <div>
-                        <!-- Search Bar -->
-                        <div class="flex flex-col sm:flex-row gap-2">
-                            <div class="relative flex-1">
-                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                    <i class="fa-regular fa-mobile-screen text-base"></i>
-                                </div>
-                                <input type="text" id="phone-input" placeholder="১১ ডিজিটের মোবাইল নম্বর লিখুন..." value="01911167991"
-                                       class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-300 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600 shadow-sm transition">
-                            </div>
-                            <button onclick="performCheck()" id="search-btn" class="px-7 py-3.5 bg-teal-800 hover:bg-teal-900 active:scale-[0.98] text-white font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                                <span>রিপোর্ট দেখুন</span>
-                            </button>
-                        </div>
+                <!-- Navigation Menu -->
+                <nav class="space-y-1.5 text-xs font-semibold">
+                    <!-- Active Fraud Checker -->
+                    <a href="/" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-purple-50 text-purple-800 font-bold border-l-4 border-purple-700 shadow-2xs transition">
+                        <i class="fa-solid fa-house-chimney text-purple-700 w-4 text-center"></i>
+                        <span>ফ্রড চেকার</span>
+                    </a>
 
-                        <!-- Demo Test Links -->
-                        <div class="flex items-center gap-2 mt-3 text-xs text-slate-500 font-medium">
-                            <span>ডেমো টেস্ট:</span>
-                            <button onclick="setAndCheck('01911167991')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono font-semibold transition">
-                                01911167991 <span class="text-emerald-600 font-sans">(Safe)</span>
-                            </button>
-                            <button onclick="setAndCheck('01700000000')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono font-semibold transition">
-                                01700000000 <span class="text-rose-600 font-sans">(Risk)</span>
-                            </button>
-                        </div>
+                    <!-- Report -->
+                    <a href="/admin#tab-history" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition">
+                        <i class="fa-solid fa-chart-simple text-slate-400 w-4 text-center"></i>
+                        <span>রিপোর্ট</span>
+                    </a>
 
-                        <!-- 4 Metric Cards -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-5">
-                            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                                <div class="text-[11px] font-bold text-slate-500">মোট অর্ডার</div>
-                                <div id="stat-total-orders" class="text-2xl font-black text-blue-600 font-['Outfit'] mt-1">20</div>
-                            </div>
-                            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                                <div class="text-[11px] font-bold text-slate-500">সফল ডেলিভারি</div>
-                                <div id="stat-delivered" class="text-2xl font-black text-teal-700 font-['Outfit'] mt-1">17</div>
-                            </div>
-                            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                                <div class="text-[11px] font-bold text-slate-500">বাতিল/রিটার্ন</div>
-                                <div id="stat-cancelled" class="text-2xl font-black text-rose-600 font-['Outfit'] mt-1">3</div>
-                            </div>
-                            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-                                <div class="text-[11px] font-bold text-slate-500">Pathao Score</div>
-                                <div class="mt-1.5">
-                                    <span id="stat-pathao-badge" class="inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800">
-                                        ৯৫% (ভেরিফায়েড)
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Analytics -->
+                    <a href="/admin#tab-keys" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition">
+                        <i class="fa-regular fa-clock text-slate-400 w-4 text-center"></i>
+                        <span>অ্যানালিটিক্স</span>
+                    </a>
 
-                        <!-- Courier Breakdown Table -->
-                        <div class="mt-5 border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-sm">
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="border-b border-slate-100 bg-slate-50/60 text-slate-600 font-bold text-[11px]">
-                                        <th class="py-3 px-4">কুরিয়ার সংস্থা</th>
-                                        <th class="py-3 px-4 text-center">স্ট্যাটাস</th>
-                                        <th class="py-3 px-4 text-center">অর্ডার</th>
-                                        <th class="py-3 px-4 text-center">ডেলিভারি</th>
-                                        <th class="py-3 px-4 text-center">বাতিল</th>
-                                        <th class="py-3 px-4 text-right">ডেলিভারি হার</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="courier-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                                    <tr>
-                                        <td class="py-3 px-4 font-bold text-slate-900">Steadfast</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ভেরিফায়েড</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold">10</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-emerald-600">9</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
-                                        <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">90.00%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 px-4 font-bold text-slate-900">Pathao</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ভেরিফায়েড</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold">6</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-emerald-600">5</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
-                                        <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">83.33%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 px-4 font-bold text-slate-900">RedX</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">সক্রিয়</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold">4</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-emerald-600">3</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
-                                        <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">75.00%</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 px-4 text-slate-500">CarryBee</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">ডাটা নেই</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-right text-slate-400">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 px-4 text-slate-500">Paperfly</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">ডাটা নেই</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-right text-slate-400">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 px-4 text-slate-500">ParcelDex</td>
-                                        <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">ডাটা নেই</span></td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-center font-['Outfit'] text-slate-400">0</td>
-                                        <td class="py-3 px-4 text-right text-slate-400">—</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <!-- Blacklist -->
+                    <a href="/admin#tab-history" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition">
+                        <i class="fa-regular fa-shield-halved text-slate-400 w-4 text-center"></i>
+                        <span>ব্ল্যাকলিস্ট</span>
+                    </a>
 
-                    <!-- Footer of Card -->
-                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-medium text-slate-400">
-                        <span>Multi-Courier API Engine</span>
-                        <span class="text-teal-700 flex items-center gap-1.5 font-semibold">
-                            <i class="fa-solid fa-circle-check text-xs"></i> Secure Verification
-                        </span>
-                    </div>
-
-                </div>
-
+                    <!-- Settings -->
+                    <a href="/admin#tab-whatsapp" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition">
+                        <i class="fa-solid fa-gear text-slate-400 w-4 text-center"></i>
+                        <span>সেটিংস</span>
+                    </a>
+                </nav>
             </div>
+
+            <!-- Sidebar Bottom Info -->
+            <div class="pt-4 border-t border-purple-50/60 hidden md:block">
+                <div class="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>সিস্টেম লাইভ</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ======================================================== -->
+        <!-- MAIN CONTENT AREA -->
+        <!-- ======================================================== -->
+        <div class="flex-1 flex flex-col bg-[#faf9fd]/70">
+            
+            <!-- Top Header Bar -->
+            <header class="h-14 px-6 border-b border-purple-50/70 flex items-center justify-end gap-3.5 bg-white/60 backdrop-blur-xs">
+                <!-- Notification Bell -->
+                <button class="relative w-8 h-8 rounded-full bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 flex items-center justify-center transition border border-slate-200/60">
+                    <i class="fa-regular fa-bell text-xs"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-purple-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center font-['Outfit']">1</span>
+                </button>
+
+                <!-- User Profile Pill -->
+                <a href="/admin" class="flex items-center gap-2 bg-slate-50 hover:bg-purple-50/80 px-2.5 py-1 rounded-full border border-slate-200/60 transition group">
+                    <div class="w-6 h-6 rounded-full bg-purple-700 text-white flex items-center justify-center font-bold text-xs font-['Outfit'] shadow-2xs">
+                        E
+                    </div>
+                    <span class="text-xs font-bold text-slate-700 group-hover:text-purple-900 font-['Outfit']">Ecom Centrix</span>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-slate-400 mr-0.5"></i>
+                </a>
+            </header>
+
+            <!-- Dashboard Body -->
+            <main class="flex-1 p-5 md:p-6 lg:p-7 space-y-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- LEFT COLUMN (2/3): Title, Search, Metrics, Table -->
+                    <div class="lg:col-span-8 space-y-5">
+                        
+                        <!-- Page Title Header -->
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-black text-purple-900 tracking-tight">কুরিয়ার ফ্রড চেকার</h1>
+                            <p class="text-xs text-slate-500 mt-0.5 font-medium">কাস্টমারের মোবাইল নম্বর দিয়ে অর্ডার, ডেলিভারি ও ফ্রড রিস্ক দ্রুত যাচাই করুন।</p>
+                        </div>
+
+                        <!-- Capsule Search Bar -->
+                        <div class="relative bg-white rounded-full p-1.5 border border-purple-200/80 shadow-xs flex items-center">
+                            <div class="pl-4 pr-2 text-purple-600">
+                                <i class="fa-solid fa-phone text-sm"></i>
+                            </div>
+                            <input type="text" id="phone-input" placeholder="কাস্টমারের মোবাইল নম্বর লিখুন (যেমন: 01XXXXXXXXX)" value="01911167991"
+                                   class="flex-1 bg-transparent py-2 px-1 text-xs md:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none">
+                            <button onclick="performCheck()" id="search-btn" class="px-6 py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-full font-bold text-xs shadow-sm transition flex items-center gap-2 shrink-0">
+                                <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
+                                <span>যাচাই করুন</span>
+                            </button>
+                        </div>
+
+                        <!-- 4 Summary Metrics Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <!-- মোট অর্ডার -->
+                            <div class="bg-white p-3.5 rounded-2xl border border-purple-100/70 shadow-2xs flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-box text-base"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="text-[11px] font-medium text-slate-500">মোট অর্ডার</div>
+                                    <div id="stat-total-orders" class="text-xl font-black text-slate-900 font-['Outfit'] leading-tight">20</div>
+                                </div>
+                            </div>
+
+                            <!-- সফল ডেলিভারি -->
+                            <div class="bg-white p-3.5 rounded-2xl border border-emerald-100/70 shadow-2xs flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-truck text-base"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="text-[11px] font-medium text-slate-500">সফল ডেলিভারি</div>
+                                    <div id="stat-delivered" class="text-xl font-black text-slate-900 font-['Outfit'] leading-tight">17</div>
+                                </div>
+                            </div>
+
+                            <!-- বাতিল / রিটার্ন -->
+                            <div class="bg-white p-3.5 rounded-2xl border border-rose-100/70 shadow-2xs flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-circle-xmark text-base"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="text-[11px] font-medium text-slate-500">বাতিল / রিটার্ন</div>
+                                    <div id="stat-cancelled" class="text-xl font-black text-slate-900 font-['Outfit'] leading-tight">3</div>
+                                </div>
+                            </div>
+
+                            <!-- ডেলিভারি রেট -->
+                            <div class="bg-white p-3.5 rounded-2xl border border-blue-100/70 shadow-2xs flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-percent text-base"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="text-[11px] font-medium text-slate-500">ডেলিভারি রেট</div>
+                                    <div id="stat-rate" class="text-xl font-black text-blue-700 font-['Outfit'] leading-tight">85.00%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Courier Breakdown Table Card -->
+                        <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
+                            <!-- Table Card Header -->
+                            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2 text-slate-800">
+                                <div class="text-blue-600 text-sm">
+                                    <i class="fa-solid fa-truck-fast"></i>
+                                </div>
+                                <h3 class="text-xs md:text-sm font-bold text-slate-900">কুরিয়ার ভিত্তিক বিস্তারিত তথ্য</h3>
+                            </div>
+
+                            <!-- Table Rows -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50/60 text-slate-500 font-bold text-[11px] border-b border-slate-100">
+                                            <th class="py-3 px-4">কুরিয়ার কোম্পানি</th>
+                                            <th class="py-3 px-3 text-center">স্ট্যাটাস</th>
+                                            <th class="py-3 px-3 text-center">অর্ডার</th>
+                                            <th class="py-3 px-3 text-center">ডেলিভারি</th>
+                                            <th class="py-3 px-3 text-center">বাতিল</th>
+                                            <th class="py-3 px-3 text-center">WhatsApp</th>
+                                            <th class="py-3 px-4 text-right">ডেলিভারি রেট</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="courier-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                        <!-- Steadfast -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/steadfast.svg" alt="Steadfast" class="h-4 w-auto object-contain">
+                                                <span class="font-bold text-slate-900">Steadfast</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <i class="fa-regular fa-circle-check text-[9px]"></i> Verified
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold">10</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-emerald-600">9</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-semibold font-mono">
+                                                    <i class="fa-brands fa-whatsapp text-xs"></i> 01911167991
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">90.00%</td>
+                                        </tr>
+
+                                        <!-- Pathao -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/pathao.svg" alt="Pathao" class="h-4 w-auto object-contain">
+                                                <span class="font-bold text-slate-900">Pathao</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <i class="fa-regular fa-circle-check text-[9px]"></i> Verified
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold">6</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-emerald-600">5</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-semibold font-mono">
+                                                    <i class="fa-brands fa-whatsapp text-xs"></i> 01911167991
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">83.33%</td>
+                                        </tr>
+
+                                        <!-- RedX -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/redx.svg" alt="RedX" class="h-4 w-auto object-contain">
+                                                <span class="font-bold text-slate-900">RedX</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                    <i class="fa-solid fa-bolt text-[9px]"></i> Active
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold">4</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-emerald-600">3</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] font-semibold text-rose-500">1</td>
+                                            <td class="py-3 px-3 text-center text-slate-300 font-mono">—</td>
+                                            <td class="py-3 px-4 text-right font-['Outfit'] font-bold text-slate-900">75.00%</td>
+                                        </tr>
+
+                                        <!-- CarryBee -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/carrybee.svg" alt="CarryBee" class="h-4 w-auto object-contain opacity-70">
+                                                <span class="text-slate-600 font-semibold">CarryBee</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">
+                                                    <i class="fa-regular fa-circle text-[8px]"></i> No Data
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center text-slate-300 font-mono">—</td>
+                                            <td class="py-3 px-4 text-right text-slate-400 font-mono">—</td>
+                                        </tr>
+
+                                        <!-- Paperfly -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/paperfly.svg" alt="Paperfly" class="h-4 w-auto object-contain opacity-70">
+                                                <span class="text-slate-600 font-semibold">Paperfly</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">
+                                                    <i class="fa-regular fa-circle text-[8px]"></i> No Data
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center text-slate-300 font-mono">—</td>
+                                            <td class="py-3 px-4 text-right text-slate-400 font-mono">—</td>
+                                        </tr>
+
+                                        <!-- ParcelDex -->
+                                        <tr>
+                                            <td class="py-3 px-4 flex items-center gap-2.5">
+                                                <img src="/assets/courier-logo/parceldex.svg" alt="ParcelDex" class="h-4 w-auto object-contain opacity-70">
+                                                <span class="text-slate-600 font-semibold">ParcelDex</span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100">
+                                                    <i class="fa-regular fa-circle text-[8px]"></i> No Data
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center font-['Outfit'] text-slate-400">0</td>
+                                            <td class="py-3 px-3 text-center text-slate-300 font-mono">—</td>
+                                            <td class="py-3 px-4 text-right text-slate-400 font-mono">—</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN (1/3): Trust Score & Verification Result -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-purple-100/70 p-5 md:p-6 shadow-2xs flex flex-col items-center justify-between min-h-[460px]">
+                        
+                        <!-- Header -->
+                        <div class="w-full flex items-center justify-start gap-2 pb-3 border-b border-slate-100">
+                            <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-900">যাচাইকৃত ফলাফল</h3>
+                        </div>
+
+                        <!-- Phone Capsule Pill -->
+                        <div class="my-4 flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-600">
+                            <span>মোবাইল নম্বর:</span>
+                            <span id="display-phone" class="font-bold text-slate-800 font-mono">01911167991</span>
+                            <button onclick="copyPhone()" title="কপি করুন" class="text-slate-400 hover:text-purple-600 transition ml-0.5">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <!-- Smooth Gradient Progress Gauge -->
+                        <div class="relative w-48 h-48 flex items-center justify-center my-2">
+                            <svg class="w-48 h-48 -rotate-90" viewBox="0 0 160 160">
+                                <defs>
+                                    <linearGradient id="trustGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#84cc16" />
+                                        <stop offset="100%" stop-color="#10b981" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="80" cy="80" r="64" stroke="#f1f5f9" stroke-width="12" fill="transparent" />
+                                <circle id="gauge-circle" cx="80" cy="80" r="64" stroke="url(#trustGradient)" stroke-width="12" 
+                                        stroke-dasharray="402" stroke-dashoffset="60" stroke-linecap="round" fill="transparent" 
+                                        class="transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span id="gauge-percent" class="text-4xl font-extrabold text-slate-900 font-['Outfit']">85%</span>
+                                <span class="text-xs font-semibold text-slate-500 mt-0.5">বিশ্বাসযোগ্যতা</span>
+                            </div>
+                        </div>
+
+                        <!-- Risk Verdict Pill & Advisory -->
+                        <div class="w-full text-center mt-3 pt-3 border-t border-slate-100">
+                            <div id="risk-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <i class="fa-regular fa-circle-check"></i>
+                                <span id="risk-badge-text">নিম্ন ঝুঁকি (Low Risk)</span>
+                            </div>
+                            <p id="risk-desc-text" class="text-xs text-slate-500 mt-2 leading-relaxed px-2 font-medium">
+                                এই নম্বরধারীর কুরিয়ার ডেলিভারি রেকর্ড ভালো এবং ফ্রডের সম্ভাবনা কম।
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
 
         </div>
 

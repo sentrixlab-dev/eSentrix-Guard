@@ -1,4 +1,13 @@
-// Store Guard AI - Client Logic
+// Ecom Centrix Cart - Fraud Checker Client Engine
+
+const COURIER_META = {
+    'Steadfast': { logo: '/assets/courier-logo/steadfast.svg', defaultStatus: 'Verified', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    'Pathao': { logo: '/assets/courier-logo/pathao.svg', defaultStatus: 'Verified', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    'RedX': { logo: '/assets/courier-logo/redx.svg', defaultStatus: 'Active', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' },
+    'CarryBee': { logo: '/assets/courier-logo/carrybee.svg', defaultStatus: 'No Data', badgeClass: 'bg-slate-100 text-slate-500 border-slate-200' },
+    'Paperfly': { logo: '/assets/courier-logo/paperfly.svg', defaultStatus: 'No Data', badgeClass: 'bg-slate-100 text-slate-500 border-slate-200' },
+    'ParcelDex': { logo: '/assets/courier-logo/parceldex.svg', defaultStatus: 'No Data', badgeClass: 'bg-slate-100 text-slate-500 border-slate-200' }
+};
 
 function copyPhone() {
     const phone = document.getElementById('display-phone').innerText.trim();
@@ -8,15 +17,10 @@ function copyPhone() {
             if (btn) {
                 const original = btn.innerHTML;
                 btn.innerHTML = `<i class="fa-solid fa-check text-emerald-600"></i>`;
-                setTimeout(() => btn.innerHTML = original, 1500);
+                setTimeout(() => btn.innerHTML = original, 1400);
             }
         });
     }
-}
-
-function setAndCheck(num) {
-    document.getElementById('phone-input').value = num;
-    performCheck(num);
 }
 
 async function performCheck(explicitPhone) {
@@ -30,7 +34,7 @@ async function performCheck(explicitPhone) {
     }
 
     const btn = document.getElementById('search-btn');
-    const originalBtnText = btn.innerHTML;
+    const originalBtnHtml = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>যাচাই হচ্ছে...</span>`;
 
@@ -47,117 +51,123 @@ async function performCheck(explicitPhone) {
             return;
         }
 
-        renderReport(res.data);
+        renderDashboard(res.data);
     } catch (err) {
         console.error('Check Error:', err);
         alert('সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।');
     } finally {
         btn.disabled = false;
-        btn.innerHTML = originalBtnText;
+        btn.innerHTML = originalBtnHtml;
     }
 }
 
-function renderReport(data) {
+function renderDashboard(data) {
     // 1. Phone Display
     document.getElementById('display-phone').innerText = data.phone;
 
-    // 2. Rating & Gauge
+    // 2. Trust Score & Gauge
     const rate = data.successRateNumber || 0;
     document.getElementById('gauge-percent').innerText = `${rate}%`;
 
-    const gaugeCircle = document.getElementById('gauge-progress');
-    const maxOffset = 415;
+    const gaugeCircle = document.getElementById('gauge-circle');
+    const maxOffset = 402;
     const offset = maxOffset - (maxOffset * rate / 100);
     gaugeCircle.style.strokeDashoffset = offset;
 
-    // Color coordination based on risk
-    let gaugeColor = '#10b981'; // Emerald
-    let riskBoxClass = 'border-emerald-200 bg-emerald-50/60';
-    let riskIconBg = 'bg-emerald-600 text-white';
-    let riskIcon = 'fa-solid fa-user-check';
-    let riskTitleClass = 'text-emerald-900';
-    let riskDescClass = 'text-emerald-800/80';
+    // Gradient definitions update
+    const gradient = document.getElementById('trustGradient');
+    let riskBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    let riskBadgeIcon = 'fa-regular fa-circle-check';
+    let riskBadgeText = 'নিম্ন ঝুঁকি (Low Risk)';
+    let riskDesc = 'এই নম্বরধারীর কুরিয়ার ডেলিভারি রেকর্ড ভালো এবং ফ্রডের সম্ভাবনা কম।';
 
     if (data.totalOrders === 0) {
-        gaugeColor = '#94a3b8'; // Slate
-        riskBoxClass = 'border-slate-200 bg-slate-50';
-        riskIconBg = 'bg-slate-400 text-white';
-        riskIcon = 'fa-solid fa-circle-question';
-        riskTitleClass = 'text-slate-800';
-        riskDescClass = 'text-slate-600';
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#94a3b8" /><stop offset="100%" stop-color="#64748b" />`;
+        }
+        riskBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+        riskBadgeIcon = 'fa-regular fa-circle-question';
+        riskBadgeText = 'নতুন কাস্টমার (No Record)';
+        riskDesc = 'পূর্বে কোনো কুরিয়ার ডেলিভারি হিস্ট্রি পাওয়া যায়নি। ফোনে কথা বলে কনফার্ম করুন।';
     } else if (rate < 50) {
-        gaugeColor = '#e11d48'; // Rose
-        riskBoxClass = 'border-rose-200 bg-rose-50/60';
-        riskIconBg = 'bg-rose-600 text-white';
-        riskIcon = 'fa-solid fa-triangle-exclamation';
-        riskTitleClass = 'text-rose-900';
-        riskDescClass = 'text-rose-800/80';
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#fb7185" /><stop offset="100%" stop-color="#e11d48" />`;
+        }
+        riskBadgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+        riskBadgeIcon = 'fa-solid fa-triangle-exclamation';
+        riskBadgeText = `উচ্চ ঝুঁকি (High Risk - ${rate}%)`;
+        riskDesc = 'কাস্টমারের পার্সেল রিটার্নের হার অস্বাভাবিক বেশি। অগ্রিম ডেলিভারি চার্জ ছাড়া অর্ডার পাঠানো ঝুঁকিপূর্ণ।';
     } else if (rate < 80) {
-        gaugeColor = '#d97706'; // Amber
-        riskBoxClass = 'border-amber-200 bg-amber-50/60';
-        riskIconBg = 'bg-amber-500 text-white';
-        riskIcon = 'fa-solid fa-shield-halved';
-        riskTitleClass = 'text-amber-900';
-        riskDescClass = 'text-amber-800/80';
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#d97706" />`;
+        }
+        riskBadgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+        riskBadgeIcon = 'fa-solid fa-shield-halved';
+        riskBadgeText = `মাঝারি ঝুঁকি (Medium Risk - ${rate}%)`;
+        riskDesc = 'কাস্টমারের কিছু রিটার্ন রেকর্ড রয়েছে। অর্ডার কনফার্ম করার পূর্বে ফোনে নিশ্চিত হয়ে নিন।';
+    } else {
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#84cc16" /><stop offset="100%" stop-color="#10b981" />`;
+        }
+        riskBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        riskBadgeIcon = 'fa-regular fa-circle-check';
+        riskBadgeText = `নিম্ন ঝুঁকি (Low Risk - ${rate}%)`;
+        riskDesc = 'এই নম্বরধারীর কুরিয়ার ডেলিভারি রেকর্ড ভালো এবং ফ্রডের সম্ভাবনা কম।';
     }
 
-    gaugeCircle.setAttribute('stroke', gaugeColor);
+    const badgeEl = document.getElementById('risk-badge');
+    badgeEl.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${riskBadgeClass}`;
+    badgeEl.innerHTML = `<i class="${riskBadgeIcon}"></i> <span>${riskBadgeText}</span>`;
+    document.getElementById('risk-desc-text').innerText = riskDesc;
 
-    // 3. Risk Box
-    const riskBox = document.getElementById('risk-box');
-    riskBox.className = `mt-6 p-4 rounded-2xl border transition-all duration-300 ${riskBoxClass}`;
-    
-    document.getElementById('risk-icon-wrapper').className = `w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${riskIconBg}`;
-    document.getElementById('risk-icon').className = `${riskIcon} text-base`;
-    
-    const titleEl = document.getElementById('risk-title');
-    titleEl.className = `font-bold text-sm ${riskTitleClass}`;
-    titleEl.innerText = data.riskTitleBn;
-
-    const descEl = document.getElementById('risk-desc');
-    descEl.className = `text-xs mt-1 leading-relaxed ${riskDescClass}`;
-    descEl.innerText = data.riskDescBn;
-
-    // 4. Metric Cards
+    // 3. Metric Summary Cards
     document.getElementById('stat-total-orders').innerText = data.totalOrders;
     document.getElementById('stat-delivered').innerText = data.totalDelivery;
     document.getElementById('stat-cancelled').innerText = data.totalCancel;
-    
-    const pathaoBadge = document.getElementById('stat-pathao-badge');
-    pathaoBadge.innerText = data.pathaoScore || '—';
-    if (data.totalOrders === 0) {
-        pathaoBadge.className = 'inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-600';
-    } else if (rate < 50) {
-        pathaoBadge.className = 'inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-rose-100 text-rose-800';
-    } else {
-        pathaoBadge.className = 'inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800';
-    }
+    document.getElementById('stat-rate').innerText = `${rate.toFixed(2)}%`;
 
-    // 5. Courier Breakdown Table
-    const tbody = document.getElementById('courier-rows');
+    // 4. Courier Breakdown Table
+    const tbody = document.getElementById('courier-table-body');
     if (Array.isArray(data.courierBreakdown) && data.courierBreakdown.length > 0) {
         tbody.innerHTML = data.courierBreakdown.map(c => {
             const hasData = c.orders > 0;
-            const badgeClass = hasData 
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                : 'bg-slate-100 text-slate-500';
-            const nameClass = hasData ? 'font-bold text-slate-900' : 'text-slate-500';
+            const meta = COURIER_META[c.courier] || {
+                logo: '/assets/courier-logo/steadfast.svg',
+                defaultStatus: hasData ? 'Verified' : 'No Data',
+                badgeClass: hasData ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500'
+            };
+
+            let statusBadge = '';
+            if (hasData) {
+                if (c.courier === 'RedX') {
+                    statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200"><i class="fa-solid fa-bolt text-[9px]"></i> Active</span>`;
+                } else {
+                    statusBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-regular fa-circle-check text-[9px]"></i> Verified</span>`;
+                }
+            } else {
+                statusBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-500 bg-slate-100"><i class="fa-regular fa-circle text-[8px]"></i> No Data</span>`;
+            }
+
+            const waCell = (data.hasWhatsApp || hasData)
+                ? `<span class="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-semibold font-mono"><i class="fa-brands fa-whatsapp text-xs"></i> ${data.phone}</span>`
+                : `<span class="text-slate-300 font-mono">—</span>`;
+
             const numClass = hasData ? 'text-slate-900 font-semibold' : 'text-slate-400';
             const delivClass = hasData ? 'text-emerald-600 font-semibold' : 'text-slate-400';
             const cancelClass = hasData ? 'text-rose-500 font-semibold' : 'text-slate-400';
-            const rateClass = hasData ? 'text-slate-900 font-bold' : 'text-slate-400';
+            const rateClass = hasData ? 'text-slate-900 font-bold' : 'text-slate-400 font-mono';
 
             return `
                 <tr>
-                    <td class="py-3 px-4 ${nameClass}">${c.courier}</td>
-                    <td class="py-3 px-4 text-center">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
-                            ${c.status || (hasData ? 'ভেরিফায়েড' : 'ডাটা নেই')}
-                        </span>
+                    <td class="py-3 px-4 flex items-center gap-2.5">
+                        <img src="${meta.logo}" alt="${c.courier}" class="h-4 w-auto object-contain ${hasData ? '' : 'opacity-70'}" onerror="this.style.display='none'">
+                        <span class="${hasData ? 'font-bold text-slate-900' : 'text-slate-600 font-semibold'}">${c.courier}</span>
                     </td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] ${numClass}">${c.orders}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] ${delivClass}">${c.delivery}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] ${cancelClass}">${c.cancel}</td>
+                    <td class="py-3 px-3 text-center">${statusBadge}</td>
+                    <td class="py-3 px-3 text-center font-['Outfit'] ${numClass}">${c.orders}</td>
+                    <td class="py-3 px-3 text-center font-['Outfit'] ${delivClass}">${c.delivery}</td>
+                    <td class="py-3 px-3 text-center font-['Outfit'] ${cancelClass}">${c.cancel}</td>
+                    <td class="py-3 px-3 text-center">${waCell}</td>
                     <td class="py-3 px-4 text-right font-['Outfit'] ${rateClass}">${c.rate}</td>
                 </tr>
             `;
@@ -165,7 +175,7 @@ function renderReport(data) {
     }
 }
 
-// Enter key trigger for search
+// Enter Key triggers search
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('phone-input');
     if (input) {

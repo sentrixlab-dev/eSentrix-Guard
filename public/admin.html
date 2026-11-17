@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Guard AI - অ্যাডমিন প্যানেল</title>
+    <title>Ecom Centrix Cart - অ্যাডমিন কন্ট্রোল প্যানেল</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-[#f0f4f8] min-h-screen text-slate-800 flex flex-col">
+<body class="bg-[#f3f0fa] min-h-screen text-slate-800 flex flex-col font-['Hind_Siliguri']">
 
     <!-- Top Admin Navbar -->
-    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+    <header class="bg-white border-b border-purple-100/70 sticky top-0 z-30 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Branding -->
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shadow-sm">
-                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-base shadow-xs">
+                    <i class="fa-solid fa-cart-shopping"></i>
                 </div>
                 <div>
-                    <span class="text-base font-black tracking-wider text-slate-900 font-['Outfit']">STORE GUARD</span>
-                    <span class="text-xs font-bold text-teal-700 ml-1 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">Admin Control</span>
+                    <span class="text-sm font-black tracking-tight text-purple-900 font-['Outfit']">ECOM CENTRIX</span>
+                    <span class="text-[10px] font-bold text-purple-700 ml-1 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">Admin Control</span>
                 </div>
             </div>
 
             <!-- Tab Buttons -->
-            <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
-                <button onclick="switchTab('history')" id="tab-btn-history" class="px-4 py-2 rounded-lg transition bg-white text-teal-800 shadow-sm">
-                    <i class="fa-solid fa-database mr-1.5"></i> ডাটাবেজ হিস্ট্রি
+            <nav class="hidden md:flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60 text-xs font-bold">
+                <button onclick="switchTab('history')" id="tab-btn-history" class="px-4 py-2 rounded-lg transition bg-white text-purple-900 shadow-2xs">
+                    <i class="fa-solid fa-database mr-1.5 text-purple-700"></i> ডাটাবেজ হিস্ট্রি
                 </button>
                 <button onclick="switchTab('keys')" id="tab-btn-keys" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
                     <i class="fa-solid fa-key mr-1.5"></i> এপিআই কী পুল
@@ -37,114 +39,106 @@
                 <button onclick="switchTab('whatsapp')" id="tab-btn-whatsapp" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
                     <i class="fa-brands fa-whatsapp mr-1.5"></i> WhatsApp চেকার
                 </button>
+                <button onclick="switchTab('scraper')" id="tab-btn-scraper" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-robot mr-1.5"></i> ডাটা স্ক্র্যাপিং
+                </button>
                 <button onclick="switchTab('users')" id="tab-btn-users" class="px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900">
-                    <i class="fa-solid fa-users mr-1.5"></i> ইউজার কন্ট্রোল
+                    <i class="fa-solid fa-users mr-1.5"></i> ইউজার
                 </button>
             </nav>
 
+            <!-- User Menu & Logout -->
             <div class="flex items-center gap-3">
-                <a href="/" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-teal-700 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                    <i class="fa-solid fa-external-link text-[10px]"></i> পাবলিক চেকার
+                <a href="/" target="_blank" class="text-xs font-semibold text-slate-600 hover:text-purple-700 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/80">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> ফ্রন্টএন্ড চেকার
                 </a>
                 <div class="h-6 w-px bg-slate-200"></div>
+                
                 <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-full bg-teal-800 text-white flex items-center justify-center font-bold text-xs font-['Outfit']">A</span>
-                    <span id="user-display-name" class="text-xs font-bold text-slate-700 hidden sm:inline">Admin</span>
+                    <div class="w-8 h-8 rounded-full bg-purple-700 text-white flex items-center justify-center font-bold text-xs font-['Outfit'] shadow-xs">
+                        A
+                    </div>
+                    <span id="user-display-name" class="text-xs font-bold text-slate-700 hidden sm:inline font-['Outfit']">Admin</span>
+                    <button onclick="logoutAdmin()" title="লগআউট" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-power-off text-xs"></i>
+                    </button>
                 </div>
             </div>
+
         </div>
     </header>
 
-    <!-- Mobile Nav Bar -->
-    <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-around text-xs font-bold">
-        <button onclick="switchTab('history')" class="py-1 px-2 text-teal-800">হিস্ট্রি</button>
-        <button onclick="switchTab('keys')" class="py-1 px-2 text-slate-600">এপিআই কী</button>
-        <button onclick="switchTab('whatsapp')" class="py-1 px-2 text-slate-600">WhatsApp</button>
-        <button onclick="switchTab('users')" class="py-1 px-2 text-slate-600">ইউজার</button>
-    </div>
-
-    <!-- Main Content Area -->
+    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         <!-- ======================================================== -->
         <!-- TAB 1: Database History & Fraud Log -->
         <!-- ======================================================== -->
-        <section id="tab-history" class="space-y-6">
+        <section id="tab-history" class="space-y-5">
             
-            <!-- Header Card & Filters -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <!-- Controls Bar: Title & Filters -->
+            <div class="bg-white p-5 rounded-2xl border border-purple-100/70 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700">
-                        <i class="fa-solid fa-database text-lg"></i>
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200/80 flex items-center justify-center text-purple-700">
+                        <i class="fa-solid fa-database text-base"></i>
                     </div>
                     <div>
                         <h2 class="text-base font-extrabold text-slate-900 font-['Outfit']">Database History & Fraud Log</h2>
-                        <p class="text-xs text-slate-500">পূর্বে যাচাইকৃত গ্রাহকদের লাইভ ডাটাবেজ রেকর্ড ও রেটিং ইতিহাস</p>
+                        <p class="text-xs text-slate-500 font-medium">পূর্বে যাচাইকৃত গ্রাহকদের সেন্ট্রাল ডাটাবেজ রেকর্ড ও রেটিং হিস্ট্রি</p>
                     </div>
                 </div>
 
-                <!-- Date Filter Buttons -->
+                <!-- Date Filters -->
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-regular fa-calendar mr-1"></i> দিন নির্বাচন:</span>
-                    <button onclick="setDateFilter('today')" id="filter-today" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 text-white transition">Today</button>
+                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-regular fa-calendar mr-1"></i> দিন:</span>
+                    <button onclick="setDateFilter('today')" id="filter-today" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-700 text-white transition">Today</button>
                     <button onclick="setDateFilter('yesterday')" id="filter-yesterday" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Yesterday</button>
                     <button onclick="setDateFilter('all')" id="filter-all" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">All Days</button>
                     <input type="date" id="custom-date-picker" onchange="setDateFilter('custom')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-50 border border-slate-200 font-semibold text-slate-700">
                 </div>
             </div>
 
-            <!-- Search Bar & CSV Export -->
+            <!-- Search, Row Limit & CSV Export -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="relative w-full sm:w-96">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="history-search" placeholder="নম্বর বা Order ID দিয়ে খুঁজুন..." oninput="debounceHistorySearch()"
-                           class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600/30">
+                    <input type="text" id="history-search" placeholder="মোবাইল নম্বর বা Order Ref দিয়ে খুঁজুন..." oninput="debounceHistorySearch()"
+                           class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/30">
                 </div>
-                <a href="/api/verifications/export" download class="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition">
-                    <i class="fa-solid fa-download text-slate-500"></i> CSV Export
-                </a>
-            </div>
 
-            <!-- 3 Summary Metrics -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Verifications</div>
-                        <div class="text-xs font-semibold text-slate-600">মোট ভেরিফিকেশন</div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <!-- Dropdown Row Selector -->
+                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+                        <span>প্রতি পেজে:</span>
+                        <select id="records-per-page" onchange="changePageLimit(this.value)" class="bg-transparent font-bold text-purple-900 focus:outline-none cursor-pointer">
+                            <option value="15">১৫টি</option>
+                            <option value="30" selected>৩০টি</option>
+                            <option value="50">৫০টি</option>
+                            <option value="100">১০০টি</option>
+                        </select>
                     </div>
-                    <div id="stat-total-checks" class="text-3xl font-black text-slate-900 font-['Outfit']">0</div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <div class="text-[11px] font-bold text-rose-500 uppercase tracking-wider">Auto-Blocked</div>
-                        <div class="text-xs font-semibold text-slate-600">অটো ব্লকড</div>
-                    </div>
-                    <div id="stat-auto-blocked" class="text-3xl font-black text-rose-600 font-['Outfit']">0</div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Manual Checks</div>
-                        <div class="text-xs font-semibold text-slate-600">ম্যানুয়াল চেক</div>
-                    </div>
-                    <div id="stat-manual-checks" class="text-3xl font-black text-emerald-600 font-['Outfit']">0</div>
+
+                    <a href="/api/verifications/export" download class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2 transition">
+                        <i class="fa-solid fa-file-excel text-xs"></i> CSV Export
+                    </a>
                 </div>
             </div>
 
-            <!-- Historical Table -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
+            <!-- Fixed-Height Scrollable Table Container -->
+            <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
+                <div class="max-h-[460px] overflow-y-auto">
                     <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-[11px]">
-                                <th class="py-3.5 px-4">টাইপ / অর্ডার</th>
-                                <th class="py-3.5 px-4">মোবাইল নম্বর</th>
-                                <th class="py-3.5 px-4 text-center">মোট</th>
-                                <th class="py-3.5 px-4 text-center">সফল</th>
-                                <th class="py-3.5 px-4 text-center">বাতিল</th>
-                                <th class="py-3.5 px-4 text-center">রেট</th>
-                                <th class="py-3.5 px-4 text-center">স্ট্যাটাস</th>
-                                <th class="py-3.5 px-4 text-center">WhatsApp</th>
-                                <th class="py-3.5 px-4 text-right">সময়/তারিখ</th>
+                        <thead class="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
+                            <tr class="text-slate-500 font-bold text-[11px]">
+                                <th class="py-3 px-4">টাইপ / অর্ডার</th>
+                                <th class="py-3 px-4">মোবাইল নম্বর</th>
+                                <th class="py-3 px-4 text-center">মোট</th>
+                                <th class="py-3 px-4 text-center">সফল</th>
+                                <th class="py-3 px-4 text-center">বাতিল</th>
+                                <th class="py-3 px-4 text-center">রেট</th>
+                                <th class="py-3 px-4 text-center">স্ট্যাটাস</th>
+                                <th class="py-3 px-4 text-center">WhatsApp</th>
+                                <th class="py-3 px-4 text-right">সময়/তারিখ</th>
                             </tr>
                         </thead>
                         <tbody id="history-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -161,22 +155,21 @@
         <!-- ======================================================== -->
         <!-- TAB 2: API Key Rotation Pool -->
         <!-- ======================================================== -->
-        <section id="tab-keys" class="hidden space-y-6">
-            
+        <section id="tab-keys" class="hidden space-y-5">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 <!-- Add New Key Card -->
-                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
-                    <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 mb-5">
-                        <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-sm">
-                            <i class="fa-solid fa-plus"></i>
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs h-fit space-y-4">
+                    <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-key"></i>
                         </div>
-                        <h3 class="text-sm font-extrabold text-slate-900">Register API Key</h3>
+                        <h3 class="text-sm font-extrabold text-slate-900">নতুন এপিআই কী যুক্ত করুন</h3>
                     </div>
 
                     <form onsubmit="handleApiKeySubmit(event)" class="space-y-4 text-xs">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">Courier Name</label>
+                            <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px] tracking-wider">কুরিয়ার সংস্থা</label>
                             <select id="key-courier" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800">
                                 <option value="BD Courier">BD Courier</option>
                                 <option value="Steadfast">Steadfast</option>
@@ -185,30 +178,30 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">API Key / Bearer Token</label>
-                            <input type="text" id="key-value" required placeholder="Enter Token or Secret Key..." 
-                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30">
+                            <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px] tracking-wider">API Key / Token</label>
+                            <input type="text" id="key-value" required placeholder="Enter Token..." 
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:ring-2 focus:ring-purple-600/30 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1.5 uppercase text-[10px] tracking-wider">Daily Limit (Requests / Day)</label>
+                            <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px] tracking-wider">Daily Limit (ডিফল্ট: ৫০/দিন)</label>
                             <input type="number" id="key-limit" value="50" min="1" max="5000" 
-                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800">
-                            <p class="text-[10px] text-slate-400 mt-1">ফ্রি বিডি কুরিয়ার অ্যাকাউন্টের লিমিট ৫০/দিন। ৫০ শেষ হলে কি-টি অটো-পার্কড থাকবে।</p>
+                                   class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+                            <p class="text-[10px] text-slate-400 mt-1">৫০ চেক সম্পন্ন হলে কি-টি অটো-পার্কড হবে এবং মধ্যরাতে রিসেট হবে।</p>
                         </div>
-                        <button type="submit" class="w-full py-3 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl shadow-xs transition">
-                            Add API Key
+                        <button type="submit" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-xl shadow-xs transition">
+                            এপিআই কী সেভ করুন
                         </button>
                     </form>
                 </div>
 
-                <!-- Active Keys Pool Table -->
-                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-wave-square text-teal-600"></i>
-                            <h3 class="text-sm font-extrabold text-slate-900">Active API Keys Pool</h3>
+                <!-- Active Pool Table -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-rotate text-purple-600"></i>
+                            <h3 class="text-sm font-extrabold text-slate-900">সক্রিয় এপিআই রোটেশন পুল</h3>
                         </div>
-                        <span id="active-keys-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">
+                        <span id="active-keys-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
                             0 Keys Active
                         </span>
                     </div>
@@ -217,16 +210,16 @@
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100">
-                                    <th class="pb-3">Courier</th>
-                                    <th class="pb-3">Key Value</th>
-                                    <th class="pb-3 text-center">Daily Usage</th>
-                                    <th class="pb-3 text-center">Status</th>
-                                    <th class="pb-3 text-right">Action</th>
+                                    <th class="pb-3">কুরিয়ার</th>
+                                    <th class="pb-3">কী টোকেন</th>
+                                    <th class="pb-3 text-center">ইউসেজ</th>
+                                    <th class="pb-3 text-center">স্ট্যাটাস</th>
+                                    <th class="pb-3 text-right">অ্যাকশন</th>
                                 </tr>
                             </thead>
                             <tbody id="api-keys-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
                                 <tr>
-                                    <td colspan="5" class="py-6 text-center text-slate-400">কোনো এপিআই কী যুক্ত করা হয়নি</td>
+                                    <td colspan="5" class="py-6 text-center text-slate-400">কোনো এপিআই কী নেই</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -234,34 +227,31 @@
                 </div>
 
             </div>
-
         </section>
 
         <!-- ======================================================== -->
         <!-- TAB 3: WhatsApp Checker -->
         <!-- ======================================================== -->
-        <section id="tab-whatsapp" class="hidden space-y-6">
-            
+        <section id="tab-whatsapp" class="hidden space-y-5">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                 
-                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <div class="flex items-center gap-2 text-teal-700">
+                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2 text-emerald-600">
                             <i class="fa-brands fa-whatsapp text-xl"></i>
                             <h3 class="text-sm font-extrabold text-slate-900">WhatsApp Checker Service</h3>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="wa-toggle" onchange="toggleWhatsAppService()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-700"></div>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
 
-                    <p class="text-xs text-slate-500">
-                        সার্ভিস অন করার পর QR কোডটি আপনার মোবাইলের WhatsApp অ্যাপের মাধ্যমে স্ক্যান করে সেশন লিংক করুন। এর ফলে কাস্টমার নম্বর সার্চের সাথে সাথে তার WhatsApp অ্যাকাউন্ট আছে কিনা তা স্বয়ংক্রিয়ভাবে ডিটেক্ট হবে।
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        সুইচ অন করে নিচের কিউআর কোডটি স্ক্যান করে সেশন লিংক করুন। এর ফলে কাস্টমার নম্বর সার্চের সাথে সাথে তার WhatsApp অ্যাকাউন্ট আছে কিনা তা স্বয়ংক্রিয়ভাবে ডিটেক্ট হবে।
                     </p>
 
-                    <!-- QR Code Display Box -->
-                    <div id="wa-qr-container" class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-2xl min-h-[260px]">
+                    <div id="wa-qr-container" class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-2xl min-h-[240px]">
                         <div id="wa-qr-canvas-wrapper" class="hidden">
                             <canvas id="wa-qr-canvas" class="border border-slate-300 rounded-xl p-2 bg-white"></canvas>
                         </div>
@@ -275,32 +265,75 @@
                     </button>
                 </div>
 
-                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="md:col-span-6 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs space-y-3">
                     <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-teal-600"></i> ব্যবহারের নির্দেশিকা
+                        <i class="fa-solid fa-circle-info text-purple-600"></i> ব্যবহারের নিয়মাবলী
                     </h3>
-                    <ul class="text-xs text-slate-600 space-y-2.5 list-disc pl-4 leading-relaxed">
-                        <li>WhatsApp সেশন চালু থাকলে প্রতিটি মোবাইল নম্বরের WhatsApp রেজিস্ট্রেশন স্ট্যাটাস স্বয়ংক্রিয়ভাবে চেক হয়ে টেবিলে দেখাবে।</li>
-                        <li>যদি কাস্টমারের WhatsApp একাউন্ট থাকে, টেবিলে সবুজ WhatsApp আইকন আসবে। না থাকলে ক্রস বা অনুপস্থিত দেখাবে।</li>
-                        <li>সেশন সুরক্ষিত রাখতে কখনোই একাধিক ডিভাইসে একই সাথে এই QR শেয়ার করবেন না।</li>
+                    <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4 leading-relaxed">
+                        <li>WhatsApp সেশন চালু থাকলে প্রতিটি মোবাইল নম্বরের WhatsApp রেজিস্ট্রেশন স্ট্যাটাস স্বয়ংক্রিয়ভাবে ফ্রন্টএন্ড এবং ব্যাকএন্ড ডাটাবেজে স্টোর হবে।</li>
+                        <li>যদি কাস্টমারের WhatsApp একাউন্ট থাকে, টেবিলে সবুজ WhatsApp আইকন আসবে। না থাকলে অনুপস্থিত ড্যাশ (`—`) দেখাবে।</li>
+                        <li>সেশন ডিসকানেক্ট করতে নিচের রেড বাটনে ক্লিক করলেই ক্যাশ ক্লিয়ার হয়ে যাবে।</li>
                     </ul>
                 </div>
 
             </div>
-
         </section>
 
         <!-- ======================================================== -->
-        <!-- TAB 4: User Management -->
+        <!-- TAB 4: Data Scraping Control -->
         <!-- ======================================================== -->
-        <section id="tab-users" class="hidden space-y-6">
-            
+        <section id="tab-scraper" class="hidden space-y-5">
+            <div class="bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs space-y-5">
+                <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">অটোমেটিক বাল্ক ডাটা স্ক্র্যাপিং ও হার্ভেস্ট কন্ট্রোল</h3>
+                        <p class="text-xs text-slate-500">এটি সম্পূর্ণ ব্যাকএন্ড পরিচালিত কন্ট্রোল প্যানেল (পাবলিক ব্যবহারকারীদের কাছে দৃশ্যমান নয়)।</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">টার্গেট চেকের সংখ্যা</label>
+                        <input type="number" id="harvest-target" value="100" min="10" max="2000" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">অপারেটর ফিল্টার</label>
+                        <select id="harvest-operator" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-xs">
+                            <option value="all">সকল অপারেটর (GP, BL, Robi, Airtel)</option>
+                            <option value="017,013">Grameenphone (017, 013)</option>
+                            <option value="019,014">Banglalink (019, 014)</option>
+                            <option value="018,016">Robi & Airtel (018, 016)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="triggerHarvestStart()" id="harvest-btn" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                            <i class="fa-solid fa-play mr-1.5"></i> স্ক্র্যাপিং শুরু করুন
+                        </button>
+                    </div>
+                </div>
+
+                <div id="harvest-status-box" class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-slate-800">স্ট্যাটাস:</span>
+                        <span id="harvest-status-text" class="ml-1 text-slate-500">বর্তমানে স্ক্র্যাপিং বন্ধ রয়েছে।</span>
+                    </div>
+                    <div id="harvest-counter" class="font-mono font-bold text-purple-700">০ / ০ সম্পন্ন</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 5: User Management -->
+        <!-- ======================================================== -->
+        <section id="tab-users" class="hidden space-y-5">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Add User Form -->
-                <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit">
-                    <h3 class="text-sm font-extrabold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus text-teal-700"></i> Add New User
+                <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs h-fit space-y-4">
+                    <h3 class="text-sm font-extrabold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-purple-700"></i> নতুন ইউজার তৈরি করুন
                     </h3>
                     <form onsubmit="handleUserSubmit(event)" class="space-y-4 text-xs">
                         <div>
@@ -325,16 +358,15 @@
                                 <option value="admin">Administrator</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-xl transition">
-                            Create Account
+                        <button type="submit" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-xl transition">
+                            একাউন্ট তৈরি করুন
                         </button>
                     </form>
                 </div>
 
-                <!-- Users List Table -->
-                <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-extrabold text-slate-900 mb-4 pb-3 border-b border-slate-100">
-                        Registered Users & Control
+                <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-purple-100/70 shadow-2xs space-y-3">
+                    <h3 class="text-sm font-extrabold text-slate-900 pb-3 border-b border-slate-100">
+                        রেজিস্টার্ড ইউজার তালিকা
                     </h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
@@ -356,32 +388,29 @@
                 </div>
 
             </div>
-
         </section>
 
     </main>
 
-    <!-- Admin Client Logic Script -->
+    <!-- Client Script -->
     <script>
         const socket = io();
         let currentDateFilter = 'today';
+        let currentLimit = 30;
         let searchDebounceTimeout = null;
 
-        // Switch Tabs
         function switchTab(tab) {
-            ['history', 'keys', 'whatsapp', 'users'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
+            ['history', 'keys', 'whatsapp', 'scraper', 'users'].forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                if (sec) sec.classList.add('hidden');
                 const btn = document.getElementById(`tab-btn-${t}`);
-                if (btn) {
-                    btn.className = 'px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900';
-                }
+                if (btn) btn.className = 'px-4 py-2 rounded-lg transition text-slate-600 hover:text-slate-900';
             });
 
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-btn-${tab}`);
-            if (activeBtn) {
-                activeBtn.className = 'px-4 py-2 rounded-lg transition bg-white text-teal-800 shadow-sm';
-            }
+            const targetSec = document.getElementById(`tab-${tab}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+            const targetBtn = document.getElementById(`tab-btn-${tab}`);
+            if (targetBtn) targetBtn.className = 'px-4 py-2 rounded-lg transition bg-white text-purple-900 shadow-2xs font-bold';
 
             if (tab === 'history') loadHistory();
             if (tab === 'keys') loadApiKeys();
@@ -389,34 +418,36 @@
             if (tab === 'whatsapp') loadWhatsAppStatus();
         }
 
-        // ==========================================
-        // HISTORY TAB
-        // ==========================================
         function setDateFilter(filter) {
             currentDateFilter = filter;
             ['today', 'yesterday', 'all'].forEach(f => {
                 const el = document.getElementById(`filter-${f}`);
                 if (el) {
                     el.className = f === filter 
-                        ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-800 text-white transition'
+                        ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-700 text-white transition'
                         : 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
                 }
             });
             loadHistory();
         }
 
+        function changePageLimit(val) {
+            currentLimit = parseInt(val) || 30;
+            loadHistory();
+        }
+
         function debounceHistorySearch() {
             clearTimeout(searchDebounceTimeout);
-            searchDebounceTimeout = setTimeout(loadHistory, 400);
+            searchDebounceTimeout = setTimeout(loadHistory, 350);
         }
 
         async function loadHistory() {
             const search = document.getElementById('history-search').value.trim();
             const dateInput = document.getElementById('custom-date-picker').value;
 
-            let url = `/api/verifications?filter=${currentDateFilter}`;
+            let url = `/api/verifications?filter=${currentDateFilter}&limit=${currentLimit}`;
             if (currentDateFilter === 'custom' && dateInput) {
-                url = `/api/verifications?date=${dateInput}`;
+                url = `/api/verifications?date=${dateInput}&limit=${currentLimit}`;
             }
             if (search) url += `&search=${encodeURIComponent(search)}`;
 
@@ -424,59 +455,51 @@
                 const res = await fetch(url).then(r => r.json());
                 if (!res.success) return;
 
-                // Update Header Stats
-                document.getElementById('stat-total-checks').innerText = res.stats.totalChecks;
-                document.getElementById('stat-auto-blocked').innerText = res.stats.autoBlocked;
-                document.getElementById('stat-manual-checks').innerText = res.stats.manualChecks;
-
-                // Render Rows
                 const tbody = document.getElementById('history-rows');
-                if (res.records.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">কোনো রেকর্ড পাওয়া যায়নি</td></tr>`;
+                if (!res.records || res.records.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">কোনো হিস্ট্রি রেকর্ড পাওয়া যায়নি</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = res.records.map(r => {
                     const isBlocked = r.status_badge === 'Auto-Blocked';
                     const isHighRisk = r.risk_level === 'High Risk';
-                    const badgeClass = isBlocked ? 'bg-rose-50 text-rose-700 border-rose-200' : (isHighRisk ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+                    const badgeClass = isBlocked 
+                        ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                        : (isHighRisk ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
 
                     const waIcon = r.has_whatsapp 
-                        ? `<span class="text-emerald-600 font-bold"><i class="fa-brands fa-whatsapp text-base"></i></span>`
-                        : `<span class="text-slate-300"><i class="fa-solid fa-minus"></i></span>`;
+                        ? `<span class="text-emerald-600 font-bold"><i class="fa-brands fa-whatsapp text-sm"></i></span>`
+                        : `<span class="text-slate-300 font-mono">—</span>`;
 
                     const dateStr = new Date(r.created_at).toLocaleString('bn-BD', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
 
                     return `
                         <tr>
-                            <td class="py-3 px-4">
+                            <td class="py-2.5 px-4">
                                 <span class="font-mono text-xs font-bold text-slate-800">${r.order_ref || '#ORD'}</span>
                                 <div class="text-[10px] text-slate-400">${r.check_type}</div>
                             </td>
-                            <td class="py-3 px-4 font-mono font-bold text-slate-900">${r.phone}</td>
-                            <td class="py-3 px-4 text-center font-['Outfit'] font-bold">${r.total_orders}</td>
-                            <td class="py-3 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery}</td>
-                            <td class="py-3 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel}</td>
-                            <td class="py-3 px-4 text-center font-['Outfit'] font-bold text-slate-800">${r.success_rate}%</td>
-                            <td class="py-3 px-4 text-center">
+                            <td class="py-2.5 px-4 font-mono font-bold text-slate-900">${r.phone}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] font-bold">${r.total_orders}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] font-bold text-slate-800">${r.success_rate}%</td>
+                            <td class="py-2.5 px-4 text-center">
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
                                     ${r.status_badge}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-center">${waIcon}</td>
-                            <td class="py-3 px-4 text-right text-[11px] text-slate-500">${dateStr}</td>
+                            <td class="py-2.5 px-4 text-center">${waIcon}</td>
+                            <td class="py-2.5 px-4 text-right text-[11px] text-slate-500">${dateStr}</td>
                         </tr>
                     `;
                 }).join('');
-
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // ==========================================
-        // API KEYS TAB
-        // ==========================================
         async function loadApiKeys() {
             try {
                 const res = await fetch('/api/admin/api-keys').then(r => r.json());
@@ -510,12 +533,12 @@
                                     ${k.usage_count} / ${k.daily_limit}
                                 </div>
                                 <div class="w-16 h-1.5 bg-slate-100 rounded-full mx-auto mt-1 overflow-hidden">
-                                    <div class="h-full bg-teal-600" style="width: ${Math.min(100, (k.usage_count / k.daily_limit) * 100)}%"></div>
+                                    <div class="h-full bg-purple-600" style="width: ${Math.min(100, (k.usage_count / k.daily_limit) * 100)}%"></div>
                                 </div>
                             </td>
                             <td class="py-3 text-center">${statusBadge}</td>
                             <td class="py-3 text-right space-x-1">
-                                <button onclick="resetKey(${k.id})" title="কাউন্টার ০ করুন" class="p-1.5 hover:text-teal-700 text-slate-400 transition"><i class="fa-solid fa-rotate-left"></i></button>
+                                <button onclick="resetKey(${k.id})" title="কাউন্টার ০ করুন" class="p-1.5 hover:text-purple-700 text-slate-400 transition"><i class="fa-solid fa-rotate-left"></i></button>
                                 <button onclick="toggleKey(${k.id})" title="পজ/একটিভ" class="p-1.5 hover:text-amber-600 text-slate-400 transition"><i class="fa-solid fa-pause"></i></button>
                                 <button onclick="deleteKey(${k.id})" title="ডিলিট" class="p-1.5 hover:text-rose-600 text-slate-400 transition"><i class="fa-regular fa-trash-can"></i></button>
                             </td>
@@ -560,9 +583,7 @@
             }
         }
 
-        // ==========================================
-        // WHATSAPP TAB
-        // ==========================================
+        // WhatsApp
         async function loadWhatsAppStatus() {
             try {
                 const res = await fetch('/api/admin/whatsapp/status').then(r => r.json());
@@ -576,7 +597,7 @@
 
         async function toggleWhatsAppService() {
             const enable = document.getElementById('wa-toggle').checked;
-            document.getElementById('wa-status-text').innerText = enable ? 'WhatsApp ক্লায়েন্ট ইনিশিয়ালাইজ হচ্ছে...' : 'WhatsApp সংযোগ বন্ধ করা হয়েছে।';
+            document.getElementById('wa-status-text').innerText = enable ? 'WhatsApp ইনিশিয়ালাইজ হচ্ছে...' : 'WhatsApp সংযোগ বন্ধ করা হয়েছে।';
 
             await fetch('/api/admin/whatsapp/toggle', {
                 method: 'POST',
@@ -590,10 +611,9 @@
             await toggleWhatsAppService();
         }
 
-        // Socket listener for WhatsApp QR
         socket.on('qr_code', (qr) => {
             const canvas = document.getElementById('wa-qr-canvas');
-            QRCode.toCanvas(canvas, qr, { width: 200 }, (err) => {
+            QRCode.toCanvas(canvas, qr, { width: 190 }, (err) => {
                 if (!err) {
                     document.getElementById('wa-qr-canvas-wrapper').classList.remove('hidden');
                     document.getElementById('wa-status-text').innerText = 'মোবাইল দিয়ে কিউআর কোড স্ক্যান করুন।';
@@ -610,36 +630,31 @@
             }
         });
 
-        // ==========================================
-        // USERS TAB
-        // ==========================================
+        // Users
         async function loadUsers() {
             try {
                 const res = await fetch('/api/admin/users').then(r => r.json());
                 if (!res.success) return;
 
                 const tbody = document.getElementById('users-rows');
-                tbody.innerHTML = res.users.map(u => {
-                    const isActive = u.status === 'active';
-                    return `
-                        <tr>
-                            <td class="py-3">
-                                <div class="font-bold text-slate-900">${u.full_name || u.username}</div>
-                                <div class="text-[10px] text-slate-400">@${u.username}</div>
-                            </td>
-                            <td class="py-3 font-semibold text-slate-700 capitalize">${u.role}</td>
-                            <td class="py-3 text-center">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
-                                    ${u.status}
-                                </span>
-                            </td>
-                            <td class="py-3 text-right space-x-1">
-                                <button onclick="toggleUser(${u.id})" class="p-1.5 text-slate-400 hover:text-amber-600"><i class="fa-solid fa-power-off"></i></button>
-                                <button onclick="deleteUser(${u.id})" class="p-1.5 text-slate-400 hover:text-rose-600"><i class="fa-regular fa-trash-can"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                tbody.innerHTML = res.users.map(u => `
+                    <tr>
+                        <td class="py-3">
+                            <div class="font-bold text-slate-900">${u.full_name || u.username}</div>
+                            <div class="text-[10px] text-slate-400">@${u.username}</div>
+                        </td>
+                        <td class="py-3 font-semibold text-slate-700 capitalize">${u.role}</td>
+                        <td class="py-3 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                                ${u.status}
+                            </span>
+                        </td>
+                        <td class="py-3 text-right space-x-1">
+                            <button onclick="toggleUser(${u.id})" class="p-1.5 text-slate-400 hover:text-amber-600"><i class="fa-solid fa-power-off"></i></button>
+                            <button onclick="deleteUser(${u.id})" class="p-1.5 text-slate-400 hover:text-rose-600"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
             } catch (e) {}
         }
 
@@ -668,10 +683,16 @@
         }
 
         async function deleteUser(id) {
-            if (confirm('এই ইউজার একাউন্ট মুছে ফেলতে চান?')) {
+            if (confirm('এই ইউজার ডিলিট করতে চান?')) {
                 await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
                 loadUsers();
             }
+        }
+
+        function logoutAdmin() {
+            fetch('/api/auth/logout', { method: 'POST' }).then(() => {
+                window.location.href = '/';
+            });
         }
 
         // Initial Load

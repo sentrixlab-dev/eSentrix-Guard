@@ -1,5 +1,11 @@
-/* Store Guard AI - Custom Styles */
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+/* Ecom Centrix Cart - Global Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-purple: #6d28d9;
+    --accent-emerald: #10b981;
+    --soft-surface: #faf9fd;
+}
 
 * {
     box-sizing: border-box;
@@ -10,27 +16,31 @@
     font-family: 'Outfit', sans-serif;
 }
 
-/* Custom scrollbars */
+/* Subtle sleek scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    background: #e2e8f0;
+    border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: #cbd5e1;
 }
 
-/* Table transitions */
+/* Table row interactive states */
 table tbody tr {
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease-in-out;
+}
+table tbody tr:hover {
+    background-color: #faf9fd;
 }
 
-table tbody tr:hover {
-    background-color: #f8fafc;
+/* Micro shadow helper */
+.shadow-2xs {
+    box-shadow: 0 1px 2px 0 rgba(109, 40, 217, 0.04);
 }
