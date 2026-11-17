@@ -1,4 +1,5 @@
 // Ecom Centrix Cart - Client SPA Controller
+const socket = (typeof io !== 'undefined') ? io() : null;
 
 const COURIER_META = {
     'Steadfast': { logo: '/assets/courier-logo/steadfast.svg', defaultStatus: 'Verified' },
@@ -11,6 +12,7 @@ const COURIER_META = {
 
 let currentUser = null;
 let userSearchDebounceTimer = null;
+let isHarvestingRunning = false;
 
 // ==========================================
 // SPA TAB SWITCHER (User App Isolated)
@@ -63,6 +65,55 @@ function switchUserTab(tab) {
 }
 
 // ==========================================
+// COLLAPSIBLE SIDEBAR
+// ==========================================
+function toggleSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const icon = document.getElementById('sidebar-toggle-icon');
+    if (!sidebar) return;
+
+    const isCurrentlyCollapsed = sidebar.classList.contains('w-[74px]');
+
+    if (isCurrentlyCollapsed) {
+        sidebar.classList.remove('w-[74px]', 'px-2.5');
+        sidebar.classList.add('w-[225px]', 'p-4');
+        document.querySelectorAll('.sidebar-text-block, .sidebar-label').forEach(el => el.classList.remove('hidden'));
+        if (icon) icon.className = 'fa-solid fa-chevron-left text-[10px]';
+    } else {
+        sidebar.classList.remove('w-[225px]', 'p-4');
+        sidebar.classList.add('w-[74px]', 'px-2.5', 'py-4');
+        document.querySelectorAll('.sidebar-text-block, .sidebar-label').forEach(el => el.classList.add('hidden'));
+        if (icon) icon.className = 'fa-solid fa-chevron-right text-[10px]';
+    }
+}
+
+// ==========================================
+// LANGUAGE SWITCHER
+// ==========================================
+function toggleLanguageDropdown() {
+    const d = document.getElementById('language-dropdown');
+    if (d) d.classList.toggle('hidden');
+}
+
+function changeLanguage(lang) {
+    localStorage.setItem('app_lang', lang);
+    const d = document.getElementById('language-dropdown');
+    if (d) d.classList.add('hidden');
+
+    const checkBn = document.getElementById('lang-check-bn');
+    const checkEn = document.getElementById('lang-check-en');
+    if (checkBn && checkEn) {
+        if (lang === 'bn') {
+            checkBn.classList.remove('hidden');
+            checkEn.classList.add('hidden');
+        } else {
+            checkBn.classList.add('hidden');
+            checkEn.classList.remove('hidden');
+        }
+    }
+}
+
+// ==========================================
 // PROFILE DROPDOWN & AUTH
 // ==========================================
 function toggleProfileDropdown() {
@@ -70,12 +121,18 @@ function toggleProfileDropdown() {
     if (d) d.classList.toggle('hidden');
 }
 
-// Close dropdown on outside click
+// Close dropdowns on outside click
 document.addEventListener('click', (e) => {
-    const dropdown = document.getElementById('profile-dropdown');
-    const btn = e.target.closest('button[onclick="toggleProfileDropdown()"]');
-    if (dropdown && !dropdown.contains(e.target) && !btn) {
-        dropdown.classList.add('hidden');
+    const pDropdown = document.getElementById('profile-dropdown');
+    const pBtn = e.target.closest('button[onclick="toggleProfileDropdown()"]');
+    if (pDropdown && !pDropdown.contains(e.target) && !pBtn) {
+        pDropdown.classList.add('hidden');
+    }
+
+    const lDropdown = document.getElementById('language-dropdown');
+    const lBtn = e.target.closest('button[onclick="toggleLanguageDropdown()"]');
+    if (lDropdown && !lDropdown.contains(e.target) && !lBtn) {
+        lDropdown.classList.add('hidden');
     }
 });
 
@@ -106,13 +163,7 @@ async function initCurrentUser() {
                 if (mAdminShortcut) mAdminShortcut.classList.remove('hidden');
             }
         } else {
-            // Not logged in or guest
-            const uName = document.getElementById('user-display-name');
-            if (uName) uName.innerText = 'লগইন করুন';
-            const dName = document.getElementById('dropdown-fullname');
-            if (dName) dName.innerText = 'Guest Visitor';
-            const dRole = document.getElementById('dropdown-role');
-            if (dRole) dRole.innerText = 'Public User';
+            window.location.href = '/login';
         }
     } catch (e) {
         console.error('Auth Check Error:', e);
@@ -132,16 +183,23 @@ async function handleUserLogout() {
 // FRAUD CHECKER (PRIMARY ACTION)
 // ==========================================
 function copyPhone() {
-    const phone = document.getElementById('display-phone').innerText.trim();
+    const phone = document.getElementById('display-phone')?.innerText.trim();
     if (phone) {
         navigator.clipboard.writeText(phone).then(() => {
             const btn = document.querySelector('button[title="কপি করুন"]');
             if (btn) {
                 const original = btn.innerHTML;
-                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-600"></i>`;
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-600 text-xs"></i>`;
                 setTimeout(() => btn.innerHTML = original, 1400);
             }
         });
+    }
+}
+
+function copyHarvestPhone() {
+    const phone = document.getElementById('harvest-active-phone')?.innerText.trim();
+    if (phone) {
+        navigator.clipboard.writeText(phone);
     }
 }
 
@@ -184,61 +242,107 @@ async function performCheck(explicitPhone) {
 }
 
 function renderDashboard(data) {
-    document.getElementById('display-phone').innerText = data.phone;
+    // 1. Phone row reveal
+    const phoneRow = document.getElementById('result-phone-row');
+    const displayPhone = document.getElementById('display-phone');
+    if (displayPhone) displayPhone.innerText = data.phone;
+    if (phoneRow) phoneRow.classList.remove('hidden');
 
-    // Trust Score & Gradient Arc
-    const rate = data.successRateNumber || 0;
-    document.getElementById('gauge-percent').innerText = `${rate}%`;
+    // 2. Trust Score & Gradient Arc
+    const rate = Math.round(data.successRateNumber || 0);
+    const gaugePercent = document.getElementById('gauge-percent');
+    if (gaugePercent) gaugePercent.innerText = `${rate}%`;
 
     const gaugeCircle = document.getElementById('gauge-circle');
     const maxOffset = 402;
     const offset = maxOffset - (maxOffset * rate / 100);
-    gaugeCircle.style.strokeDashoffset = offset;
+    if (gaugeCircle) gaugeCircle.style.strokeDashoffset = offset;
 
     const gradient = document.getElementById('trustGradient');
-    let riskBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    let riskBadgeIcon = 'fa-regular fa-circle-check';
-    let riskBadgeText = 'নিম্ন ঝুঁকি (Low Risk)';
-    let riskDesc = 'এই নম্বরধারীর কুরিয়ার ডেলিভারি রেকর্ড ভালো এবং ফ্রডের সম্ভাবনা কম।';
+    const riskCard = document.getElementById('risk-result-card');
+    const pillBadge = document.getElementById('risk-pill-badge');
+    const pillIcon = document.getElementById('risk-pill-icon');
+    const pillText = document.getElementById('risk-pill-text');
+    const headlineIcon = document.getElementById('risk-headline-icon');
+    const headlineText = document.getElementById('risk-headline-text');
+    const subtext = document.getElementById('risk-subtext');
 
-    if (data.totalOrders === 0) {
-        if (gradient) gradient.innerHTML = `<stop offset="0%" stop-color="#94a3b8" /><stop offset="100%" stop-color="#64748b" />`;
-        riskBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
-        riskBadgeIcon = 'fa-regular fa-circle-question';
-        riskBadgeText = 'নতুন কাস্টমার (No Record)';
-        riskDesc = 'পূর্বে কোনো কুরিয়ার ডেলিভারি হিস্ট্রি পাওয়া যায়নি। ফোনে কথা বলে কনফার্ম করুন।';
-    } else if (rate < 50) {
-        if (gradient) gradient.innerHTML = `<stop offset="0%" stop-color="#fb7185" /><stop offset="100%" stop-color="#e11d48" />`;
-        riskBadgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
-        riskBadgeIcon = 'fa-solid fa-triangle-exclamation';
-        riskBadgeText = `উচ্চ ঝুঁকি (High Risk - ${rate}%)`;
-        riskDesc = 'কাস্টমারের পার্সেল রিটার্নের হার অস্বাভাবিক বেশি। অগ্রিম ডেলিভারি চার্জ ছাড়া অর্ডার পাঠানো ঝুঁকিপূর্ণ।';
-    } else if (rate < 80) {
-        if (gradient) gradient.innerHTML = `<stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#d97706" />`;
-        riskBadgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
-        riskBadgeIcon = 'fa-solid fa-shield-halved';
-        riskBadgeText = `মাঝারি ঝুঁকি (Medium Risk - ${rate}%)`;
-        riskDesc = 'কাস্টমারের কিছু রিটার্ন রেকর্ড রয়েছে। অর্ডার কনফার্ম করার পূর্বে ফোনে নিশ্চিত হয়ে নিন।';
-    } else {
-        if (gradient) gradient.innerHTML = `<stop offset="0%" stop-color="#84cc16" /><stop offset="100%" stop-color="#10b981" />`;
-        riskBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-        riskBadgeIcon = 'fa-regular fa-circle-check';
-        riskBadgeText = `নিম্ন ঝুঁকি (Low Risk - ${rate}%)`;
-        riskDesc = 'এই নম্বরধারীর কুরিয়ার ডেলিভারি রেকর্ড ভালো এবং ফ্রডের সম্ভাবনা কম।';
+    if (riskCard) riskCard.classList.remove('hidden');
+
+    // TIER 1: 100% or Safe (ঝুঁকিমুক্ত)
+    if (rate >= 80 || data.totalOrders === 0 && rate === 100) {
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#84cc16" /><stop offset="100%" stop-color="#10b981" />`;
+        }
+        if (riskCard) {
+            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-emerald-300 bg-emerald-50/40 text-center transition-all duration-300';
+        }
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-700 border border-emerald-200 shadow-2xs';
+        if (pillIcon) pillIcon.className = 'fa-regular fa-circle-check text-[9px]';
+        if (pillText) pillText.innerText = `Low Risk (${rate}%)`;
+
+        if (headlineIcon) headlineIcon.className = 'fa-solid fa-user-plus text-sm text-emerald-700';
+        if (headlineText) {
+            headlineText.innerText = 'ঝুঁকিমুক্ত';
+            headlineText.className = 'text-base font-extrabold text-emerald-800';
+        }
+        if (subtext) {
+            subtext.innerText = 'এই কাস্টমারকে নিশ্চিন্তে পার্সেল দিতে পারেন।';
+            subtext.className = 'text-xs text-emerald-800/80 mt-1 font-medium leading-relaxed';
+        }
+    } 
+    // TIER 2: Medium Risk (নিম্ন ঝুঁকি)
+    else if (rate >= 50) {
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#d97706" />`;
+        }
+        if (riskCard) {
+            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-amber-300 bg-amber-50/40 text-center transition-all duration-300';
+        }
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-amber-700 border border-amber-200 shadow-2xs';
+        if (pillIcon) pillIcon.className = 'fa-regular fa-circle-check text-[9px]';
+        if (pillText) pillText.innerText = `Low Risk (${rate}%)`;
+
+        if (headlineIcon) headlineIcon.className = 'fa-solid fa-user-check text-sm text-amber-700';
+        if (headlineText) {
+            headlineText.innerText = 'নিম্ন ঝুঁকি';
+            headlineText.className = 'text-base font-extrabold text-amber-800';
+        }
+        if (subtext) {
+            subtext.innerText = 'এই কাস্টমারের ডেলিভারি রেট ভালো।';
+            subtext.className = 'text-xs text-amber-800/80 mt-1 font-medium leading-relaxed';
+        }
+    } 
+    // TIER 3: High Risk (উচ্চ ঝুঁকি)
+    else {
+        if (gradient) {
+            gradient.innerHTML = `<stop offset="0%" stop-color="#fb7185" /><stop offset="100%" stop-color="#e11d48" />`;
+        }
+        if (riskCard) {
+            riskCard.className = 'w-full mt-2 p-3.5 rounded-2xl border border-rose-300 bg-rose-50/40 text-center transition-all duration-300';
+        }
+        if (pillBadge) pillBadge.className = 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-white text-rose-700 border border-rose-200 shadow-2xs';
+        if (pillIcon) pillIcon.className = 'fa-solid fa-triangle-exclamation text-[9px]';
+        if (pillText) pillText.innerText = `High Risk (${rate}%)`;
+
+        if (headlineIcon) headlineIcon.className = 'fa-solid fa-triangle-exclamation text-sm text-rose-600';
+        if (headlineText) {
+            headlineText.innerText = 'উচ্চ ঝুঁকি';
+            headlineText.className = 'text-base font-extrabold text-rose-700';
+        }
+        if (subtext) {
+            subtext.innerText = 'কাস্টমারের পার্সেল রিটার্নের হার অস্বাভাবিক বেশি। অগ্রিম চার্জ ছাড়া অর্ডার ঝুঁকিপূর্ণ।';
+            subtext.className = 'text-xs text-rose-700/80 mt-1 font-medium leading-relaxed';
+        }
     }
 
-    const badgeEl = document.getElementById('risk-badge');
-    badgeEl.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${riskBadgeClass}`;
-    badgeEl.innerHTML = `<i class="${riskBadgeIcon}"></i> <span>${riskBadgeText}</span>`;
-    document.getElementById('risk-desc-text').innerText = riskDesc;
-
-    // Metric Summary Cards
+    // 3. Metric Summary Cards
     document.getElementById('stat-total-orders').innerText = data.totalOrders;
     document.getElementById('stat-delivered').innerText = data.totalDelivery;
     document.getElementById('stat-cancelled').innerText = data.totalCancel;
     document.getElementById('stat-rate').innerText = `${rate.toFixed(2)}%`;
 
-    // Courier Table
+    // 4. Detailed Courier Table
     const tbody = document.getElementById('courier-table-body');
     if (Array.isArray(data.courierBreakdown) && data.courierBreakdown.length > 0) {
         tbody.innerHTML = data.courierBreakdown.map(c => {
@@ -287,7 +391,121 @@ function renderDashboard(data) {
 }
 
 // ==========================================
-// USER HISTORY (REPORT TAB)
+// DATA SCRAPING & HARVEST CONTROLLER
+// ==========================================
+async function handleHarvestToggle() {
+    const btn = document.getElementById('harvest-action-btn');
+    const liveBox = document.getElementById('harvest-live-box');
+    
+    if (!isHarvestingRunning) {
+        const targetCount = parseInt(document.getElementById('harvest-target-input').value) || 100;
+        const operator = document.getElementById('harvest-operator-select').value;
+        const operators = operator === 'all' ? ['017', '013', '019', '014', '018', '016', '015'] : [operator];
+
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> <span>শুরু হচ্ছে...</span>`;
+
+        try {
+            const res = await fetch('/api/harvest/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targetCount, operators })
+            }).then(r => r.json());
+
+            if (res.success) {
+                isHarvestingRunning = true;
+                btn.className = 'w-full py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2';
+                btn.innerHTML = `<i class="fa-solid fa-stop text-[10px]"></i> <span>Stop scraping</span>`;
+                liveBox.classList.remove('hidden');
+                document.getElementById('harvest-fraction-text').innerText = `0 / ${targetCount}`;
+                document.getElementById('harvest-count-remaining').innerText = targetCount;
+            } else {
+                alert(res.error || 'স্ক্র্যাপিং শুরু করতে ব্যর্থ হয়েছে');
+            }
+        } catch (e) {
+            alert('সার্ভার সংযোগ সমস্যা');
+        } finally {
+            btn.disabled = false;
+        }
+    } else {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> <span>বন্ধ হচ্ছে...</span>`;
+        try {
+            await fetch('/api/harvest/stop', { method: 'POST' });
+            isHarvestingRunning = false;
+            btn.className = 'w-full py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2';
+            btn.innerHTML = `<i class="fa-solid fa-play text-[10px]"></i> <span>Start scraping</span>`;
+            const badge = document.getElementById('harvest-badge-status');
+            if (badge) {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200';
+                badge.innerHTML = `<span>Scraping stopped</span>`;
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+}
+
+// Socket.io Real-time Event Wiring
+if (socket) {
+    socket.on('harvest_progress', (data) => {
+        const liveBox = document.getElementById('harvest-live-box');
+        if (liveBox) liveBox.classList.remove('hidden');
+
+        const activePhone = document.getElementById('harvest-active-phone');
+        if (activePhone) activePhone.innerText = data.currentPhone || '01XXXXXXXXX';
+
+        const pctText = document.getElementById('harvest-pct-text');
+        if (pctText) pctText.innerText = `${data.percent || 0}%`;
+
+        const fracText = document.getElementById('harvest-fraction-text');
+        if (fracText) fracText.innerText = `${data.processedCount || 0} / ${data.targetCount || 100}`;
+
+        const fillBar = document.getElementById('harvest-fill-bar');
+        if (fillBar) fillBar.style.width = `${data.percent || 0}%`;
+
+        const countChecked = document.getElementById('harvest-count-checked');
+        if (countChecked) countChecked.innerText = data.processedCount || 0;
+
+        const countRem = document.getElementById('harvest-count-remaining');
+        if (countRem) countRem.innerText = Math.max(0, (data.targetCount || 100) - (data.processedCount || 0));
+    });
+
+    socket.on('harvest_hit', (data) => {
+        const countValid = document.getElementById('harvest-count-valid');
+        if (countValid) countValid.innerText = parseInt(countValid.innerText || 0) + 1;
+
+        if (parseInt(data.rate) < 50) {
+            const countFraud = document.getElementById('harvest-count-fraud');
+            if (countFraud) countFraud.innerText = parseInt(countFraud.innerText || 0) + 1;
+        }
+
+        // Live refresh user history if view-report is active
+        const reportView = document.getElementById('view-report');
+        if (reportView && !reportView.classList.contains('hidden')) {
+            loadUserHistory();
+        }
+    });
+
+    socket.on('harvest_completed', (data) => {
+        isHarvestingRunning = false;
+        const btn = document.getElementById('harvest-action-btn');
+        if (btn) {
+            btn.className = 'w-full py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2';
+            btn.innerHTML = `<i class="fa-solid fa-play text-[10px]"></i> <span>Start scraping</span>`;
+        }
+        const badge = document.getElementById('harvest-badge-status');
+        if (badge) {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200';
+            badge.innerHTML = `<i class="fa-solid fa-check text-[9px]"></i> <span>Scraping completed</span>`;
+        }
+    });
+}
+
+// ==========================================
+// USER HISTORY (REPORT TAB WITH COURIER SVG)
 // ==========================================
 function debounceUserSearch() {
     clearTimeout(userSearchDebounceTimer);
@@ -309,26 +527,49 @@ async function loadUserHistory() {
 
         tbody.innerHTML = res.records.map(r => {
             const isHighRisk = r.risk_level === 'High Risk' || r.status_badge === 'High Risk';
-            const badgeClass = isHighRisk 
+            const ratePillClass = isHighRisk 
                 ? 'bg-rose-50 text-rose-700 border-rose-200' 
                 : (r.risk_level === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
 
-            const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD', { day: '2-digit', month: 'short' });
+            const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+            // Build Courier SVG Badges
+            let courierHtml = '<span class="text-slate-300 font-mono">—</span>';
+            try {
+                const breakdown = typeof r.courier_breakdown === 'string' ? JSON.parse(r.courier_breakdown) : r.courier_breakdown;
+                if (Array.isArray(breakdown)) {
+                    const activeCouriers = breakdown.filter(c => c.orders > 0);
+                    if (activeCouriers.length > 0) {
+                        courierHtml = `<div class="flex items-center gap-1.5 flex-wrap">` + activeCouriers.map(c => {
+                            const logo = COURIER_META[c.courier]?.logo || '/assets/courier-logo/steadfast.svg';
+                            return `<div class="inline-flex items-center gap-1 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-lg shadow-2xs">
+                                <img src="${logo}" class="h-3.5 w-auto object-contain" alt="${c.courier}" onerror="this.style.display='none'">
+                                <span class="font-bold text-[10px] text-slate-800">${c.courier}</span>
+                                <span class="bg-purple-100 text-purple-700 font-bold text-[9px] px-1 rounded-sm">${c.orders}</span>
+                            </div>`;
+                        }).join('') + `</div>`;
+                    }
+                }
+            } catch (e) {}
+
+            const waCell = r.has_whatsapp 
+                ? `<i class="fa-brands fa-whatsapp text-emerald-500 text-sm"></i>` 
+                : `<span class="text-slate-300 font-mono">—</span>`;
 
             return `
                 <tr>
-                    <td class="py-3 px-4 font-mono font-bold text-slate-800">${r.order_ref || '#ORD'}</td>
                     <td class="py-3 px-4 font-mono font-bold text-slate-900">${r.phone}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit']">${r.total_orders}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel}</td>
-                    <td class="py-3 px-4 text-center font-['Outfit'] font-bold text-slate-800">${r.success_rate}%</td>
+                    <td class="py-3 px-4">${courierHtml}</td>
+                    <td class="py-3 px-4 text-center font-['Outfit'] font-bold text-slate-700">${r.total_orders || 0}</td>
+                    <td class="py-3 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery || 0}</td>
+                    <td class="py-3 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel || 0}</td>
                     <td class="py-3 px-4 text-center">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
-                            ${r.status_badge || r.risk_level}
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${ratePillClass}">
+                            ${r.success_rate}%
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-right text-slate-500 font-['Outfit']">${dateStr}</td>
+                    <td class="py-3 px-4 text-center">${waCell}</td>
+                    <td class="py-3 px-4 text-right text-slate-400 font-['Outfit'] text-[11px]">${dateStr}</td>
                 </tr>
             `;
         }).join('');
@@ -429,6 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initial check for default phone
-    performCheck('01911167991');
+    // Language init from storage
+    const savedLang = localStorage.getItem('app_lang') || 'bn';
+    changeLanguage(savedLang);
 });

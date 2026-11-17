@@ -43,12 +43,17 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 io.use((socket, next) => sessionMiddleware(socket.request, {}, next));
 
-// Serve Static Assets
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve Static Assets (Disable auto-serving index.html so auth guard on '/' works)
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Friendly routes
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
+app.get('/', (req, res) => {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/login');
+    }
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public/login.html')));
 app.get('/admin', (req, res) => {
     // Only allow admin role to access /admin
@@ -434,20 +439,20 @@ app.delete('/api/admin/users/:id', requireAdmin, async (req, res) => {
     res.json({ success: true });
 });
 
-// Automated Bulk Harvester / Scraper Controls
-app.post('/api/harvest/start', requireAdmin, async (req, res) => {
+// Automated Bulk Harvester / Scraper Controls (Available for authenticated users)
+app.post('/api/harvest/start', requireAuth, async (req, res) => {
     const { targetCount, operators } = req.body;
     const userId = req.session && req.session.user ? req.session.user.id : null;
     const result = await startHarvesting(io, { targetCount, operators, userId });
     res.json(result);
 });
 
-app.post('/api/harvest/stop', requireAdmin, async (req, res) => {
+app.post('/api/harvest/stop', requireAuth, async (req, res) => {
     const result = await stopHarvesting(io);
     res.json(result);
 });
 
-app.get('/api/harvest/status', requireAdmin, async (req, res) => {
+app.get('/api/harvest/status', requireAuth, async (req, res) => {
     const status = await getHarvestStatus();
     res.json({ success: true, status });
 });

@@ -147,22 +147,21 @@
             <div class="bg-white rounded-2xl border border-purple-100/70 shadow-2xs overflow-hidden">
                 <div class="max-h-[460px] overflow-y-auto overflow-x-auto">
                     <table class="w-full text-left text-xs min-w-[760px]">
-                        <thead class="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
-                            <tr class="text-slate-500 font-bold text-[11px]">
-                                <th class="py-3 px-4">টাইপ / অর্ডার</th>
-                                <th class="py-3 px-4">মোবাইল নম্বর</th>
-                                <th class="py-3 px-4 text-center">মোট</th>
-                                <th class="py-3 px-4 text-center">সফল</th>
-                                <th class="py-3 px-4 text-center">বাতিল</th>
-                                <th class="py-3 px-4 text-center">রেট</th>
-                                <th class="py-3 px-4 text-center">স্ট্যাটাস</th>
-                                <th class="py-3 px-4 text-center">WhatsApp</th>
-                                <th class="py-3 px-4 text-right">সময়/তারিখ</th>
+                        <thead class="sticky top-0 bg-slate-50 border-b border-slate-100 z-10 text-slate-500 font-bold text-[11px]">
+                            <tr>
+                                <th class="py-3 px-4"><i class="fa-solid fa-phone text-blue-500 mr-1.5"></i> Phone</th>
+                                <th class="py-3 px-4"><i class="fa-solid fa-truck text-orange-500 mr-1.5"></i> Courier</th>
+                                <th class="py-3 px-4 text-center"><i class="fa-solid fa-clipboard-list text-sky-500 mr-1"></i> Order</th>
+                                <th class="py-3 px-4 text-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Delivery</th>
+                                <th class="py-3 px-4 text-center"><i class="fa-solid fa-circle-xmark text-rose-500 mr-1"></i> Cancel</th>
+                                <th class="py-3 px-4 text-center"><i class="fa-solid fa-percent text-purple-500 mr-1"></i> % Rate</th>
+                                <th class="py-3 px-4 text-center"><i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i> WhatsApp</th>
+                                <th class="py-3 px-4 text-right"><i class="fa-regular fa-clock text-slate-400 mr-1"></i> Time / Date</th>
                             </tr>
                         </thead>
                         <tbody id="history-rows" class="divide-y divide-slate-100 text-slate-700 font-medium">
                             <tr>
-                                <td colspan="9" class="py-8 text-center text-slate-400">ডাটা লোড হচ্ছে...</td>
+                                <td colspan="8" class="py-8 text-center text-slate-400">ডাটা লোড হচ্ছে...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -464,6 +463,15 @@
             searchDebounceTimeout = setTimeout(loadHistory, 350);
         }
 
+        const COURIER_META = {
+            'Steadfast': { logo: '/assets/courier-logo/steadfast.svg' },
+            'Pathao': { logo: '/assets/courier-logo/pathao.svg' },
+            'RedX': { logo: '/assets/courier-logo/redx.svg' },
+            'CarryBee': { logo: '/assets/courier-logo/carrybee.svg' },
+            'Paperfly': { logo: '/assets/courier-logo/paperfly.svg' },
+            'ParcelDex': { logo: '/assets/courier-logo/parceldex.svg' }
+        };
+
         async function loadHistory() {
             const search = document.getElementById('history-search').value.trim();
             const dateInput = document.getElementById('custom-date-picker').value;
@@ -480,16 +488,34 @@
 
                 const tbody = document.getElementById('history-rows');
                 if (!res.records || res.records.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">কোনো হিস্ট্রি রেকর্ড পাওয়া যায়নি</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">কোনো হিস্ট্রি রেকর্ড পাওয়া যায়নি</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = res.records.map(r => {
-                    const isBlocked = r.status_badge === 'Auto-Blocked';
-                    const isHighRisk = r.risk_level === 'High Risk';
-                    const badgeClass = isBlocked 
+                    const isHighRisk = r.risk_level === 'High Risk' || r.status_badge === 'High Risk';
+                    const badgeClass = isHighRisk 
                         ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                        : (isHighRisk ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+                        : (r.risk_level === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+
+                    // Parse Courier Breakdown
+                    let courierHtml = '<span class="text-slate-300 font-mono">—</span>';
+                    try {
+                        const breakdown = typeof r.courier_breakdown === 'string' ? JSON.parse(r.courier_breakdown) : r.courier_breakdown;
+                        if (Array.isArray(breakdown)) {
+                            const activeCouriers = breakdown.filter(c => c.orders > 0);
+                            if (activeCouriers.length > 0) {
+                                courierHtml = `<div class="flex items-center gap-1.5 flex-wrap">` + activeCouriers.map(c => {
+                                    const logo = COURIER_META[c.courier]?.logo || '/assets/courier-logo/steadfast.svg';
+                                    return `<div class="inline-flex items-center gap-1 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-lg shadow-2xs">
+                                        <img src="${logo}" class="h-3.5 w-auto object-contain" alt="${c.courier}" onerror="this.style.display='none'">
+                                        <span class="font-bold text-[10px] text-slate-800">${c.courier}</span>
+                                        <span class="bg-purple-100 text-purple-700 font-bold text-[9px] px-1 rounded-sm">${c.orders}</span>
+                                    </div>`;
+                                }).join('') + `</div>`;
+                            }
+                        }
+                    } catch (e) {}
 
                     const waIcon = r.has_whatsapp 
                         ? `<span class="text-emerald-600 font-bold"><i class="fa-brands fa-whatsapp text-sm"></i></span>`
@@ -499,22 +525,18 @@
 
                     return `
                         <tr>
-                            <td class="py-2.5 px-4">
-                                <span class="font-mono text-xs font-bold text-slate-800">${r.order_ref || '#ORD'}</span>
-                                <div class="text-[10px] text-slate-400">${r.check_type}</div>
-                            </td>
                             <td class="py-2.5 px-4 font-mono font-bold text-slate-900">${r.phone}</td>
-                            <td class="py-2.5 px-4 text-center font-['Outfit'] font-bold">${r.total_orders}</td>
-                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery}</td>
-                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel}</td>
-                            <td class="py-2.5 px-4 text-center font-['Outfit'] font-bold text-slate-800">${r.success_rate}%</td>
+                            <td class="py-2.5 px-4">${courierHtml}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] font-bold text-slate-700">${r.total_orders || 0}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-emerald-600 font-semibold">${r.total_delivery || 0}</td>
+                            <td class="py-2.5 px-4 text-center font-['Outfit'] text-rose-500 font-semibold">${r.total_cancel || 0}</td>
                             <td class="py-2.5 px-4 text-center">
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
-                                    ${r.status_badge}
+                                    ${r.success_rate}%
                                 </span>
                             </td>
                             <td class="py-2.5 px-4 text-center">${waIcon}</td>
-                            <td class="py-2.5 px-4 text-right text-[11px] text-slate-500">${dateStr}</td>
+                            <td class="py-2.5 px-4 text-right text-[11px] text-slate-400 font-['Outfit']">${dateStr}</td>
                         </tr>
                     `;
                 }).join('');
